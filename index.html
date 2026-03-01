@@ -1,0 +1,36 @@
+---
+layout: default
+title: 首页
+---
+
+{% assign latest_post = site.posts.first %}
+
+<section class="hero-section">
+    <div class="date-info">
+        <h2 class="daily-title">{{ latest_post.title }}</h2>
+        <p class="date-subtitle">{{ latest_post.date | date: "%Y年%m月%d日" }} {{ latest_post.date | date: "%A" }}</p>
+    </div>
+</section>
+
+<section class="headlines-section">
+    <h3 class="section-title">今日头条</h3>
+    
+    <div class="articles-list">
+        {{ latest_post.content }}
+    </div>
+</section>
+
+<section class="archive-section">
+    <h3 class="section-title">历史日报</h3>
+    <div class="archive-list">
+        {% for post in site.posts offset:1 limit:10 %}
+        <div class="archive-item">
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% if site.posts.size > 11 %}
+    <a href="{{ '/archive' | relative_url }}" class="more-link">查看更多 →</a>
+    {% endif %}
+</section>

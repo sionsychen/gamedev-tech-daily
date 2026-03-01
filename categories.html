@@ -1,0 +1,32 @@
+---
+layout: default
+title: 分类
+---
+
+<section class="headlines-section">
+    <h3 class="section-title">按主题分类</h3>
+    
+    {% assign sorted_categories = site.categories | sort %}
+    {% for category in sorted_categories %}
+    <div style="margin-bottom: 2rem;">
+        <h4 style="font-size: 1.1rem; color: #2c5aa0; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e0e0e0;">
+            {{ category[0] }}
+        </h4>
+        
+        <div class="archive-list">
+            {% for post in category[1] limit:5 %}
+            <div class="archive-item">
+                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                <span class="archive-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if category[1].size > 5 %}
+        <p style="font-size: 0.85rem; color: #999; margin-top: 0.5rem;">
+            还有 {{ category[1].size | minus: 5 }} 篇...
+        </p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</section>

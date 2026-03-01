@@ -1,0 +1,25 @@
+---
+layout: default
+---
+
+<article class="article-page">
+    <header class="article-header">
+        <h1 class="article-title">{{ page.title }}</h1>
+        <p class="article-date">{{ page.date | date: "%Y年%m月%d日 %A" }}</p>
+        {% if page.categories %}
+        <div class="article-categories">
+            {% for category in page.categories %}
+            <span class="category-tag">{{ category }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="article-content">
+        {{ content }}
+    </div>
+
+    <footer class="article-footer">
+        <a href="{{ '/' | relative_url }}" class="back-link">← 返回首页</a>
+    </footer>
+</article>

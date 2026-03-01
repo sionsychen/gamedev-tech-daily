@@ -1,0 +1,76 @@
+---
+layout: default
+title: 搜索
+---
+
+<section class="headlines-section">
+    <h3 class="section-title">搜索日报</h3>
+    
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="输入关键词搜索文章..." autocomplete="off">
+    </div>
+    
+    <div id="search-results" class="search-results">
+        <p style="color: #999;">输入关键词开始搜索...</p>
+    </div>
+</section>
+
+<script>
+// 搜索索引数据
+const searchData = [
+    {% for post in site.posts %}
+    {
+        title: "{{ post.title | escape }}",
+        url: "{{ post.url | relative_url }}",
+        date: "{{ post.date | date: '%Y-%m-%d' }}",
+        categories: [{% for cat in post.categories %}"{{ cat }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
+        content: "{{ post.content | strip_html | escape | truncate: 300 }}"
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+];
+
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    
+    if (query.length < 2) {
+        searchResults.innerHTML = '<p style="color: #999;">输入关键词开始搜索...</p>';
+        return;
+    }
+    
+    const results = searchData.filter(item => {
+        return item.title.toLowerCase().includes(query) ||
+               item.content.toLowerCase().includes(query) ||
+               item.categories.some(cat => cat.toLowerCase().includes(query));
+    });
+    
+    displayResults(results, query);
+});
+
+function displayResults(results, query) {
+    if (results.length === 0) {
+        searchResults.innerHTML = '<p>没有找到相关文章</p>';
+        return;
+    }
+    
+    let html = `<p style="margin-bottom: 1rem;">找到 ${results.length} 篇相关文章：</p>`;
+    
+    results.forEach(item => {
+        html += `
+            <div class="archive-item" style="flex-direction: column; align-items: flex-start;">
+                <a href="${item.url}" style="font-weight: 500;">${highlight(item.title, query)}</a>
+                <span style="color: #999; font-size: 0.85rem; margin-top: 0.25rem;">${item.date}</span>
+            </div>
+        `;
+    });
+    
+    searchResults.innerHTML = html;
+}
+
+function highlight(text, query) {
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark style="background: #fff3cd;">$1</mark>');
+}
+</script>
