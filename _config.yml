@@ -2,7 +2,7 @@
 title: "游戏技术策划日报"
 description: "每日精选游戏开发技术文章 - 聚焦技术策划、UE5/Unity、开放世界、工具链"
 baseurl: "/gamedev-tech-daily"
-url: "https://sion-sychen.github.io"
+url: "https://sionsychen.github.io"
 
 # Build settings
 markdown: kramdown
