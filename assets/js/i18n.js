@@ -207,24 +207,38 @@
         if (siteTitle) siteTitle.textContent = t.siteTitle;
         if (siteDesc) siteDesc.textContent = t.siteDesc;
 
-        // Translate daily title (article title on home page)
-        const dailyTitle = document.querySelector('.daily-title');
-        if (dailyTitle) {
-            // Get the date from the subtitle
-            const dateSubtitle = document.querySelector('.date-subtitle');
-            let dateStr = '';
-            if (dateSubtitle) {
-                const dateMatch = dateSubtitle.getAttribute('data-date');
-                if (dateMatch) {
-                    const [year, month, day] = dateMatch.split('-');
-                    if (lang === 'en') {
-                        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                          'July', 'August', 'September', 'October', 'November', 'December'];
-                        const monthName = monthNames[parseInt(month) - 1];
-                        dailyTitle.textContent = `GameDev Tech Daily - ${monthName} ${parseInt(day)}, ${year}`;
-                    } else {
-                        dailyTitle.textContent = `游戏技术策划日报 - ${year}年${month}月${day}日`;
-                    }
+        // Switch article content (EN/ZH versions)
+        const heroSections = document.querySelectorAll('.hero-section');
+        const headlinesSections = document.querySelectorAll('.headlines-section');
+        
+        heroSections.forEach(section => {
+            const sectionLang = section.getAttribute('data-lang');
+            if (sectionLang) {
+                section.style.display = sectionLang === lang ? 'block' : 'none';
+            }
+        });
+        
+        headlinesSections.forEach(section => {
+            const sectionLang = section.getAttribute('data-lang');
+            if (sectionLang) {
+                section.style.display = sectionLang === lang ? 'block' : 'none';
+            }
+        });
+
+        // Update date format for visible section
+        const visibleDateSubtitle = document.querySelector(`.hero-section[data-lang="${lang}"] .date-subtitle`);
+        if (visibleDateSubtitle) {
+            const dateStr = visibleDateSubtitle.getAttribute('data-date');
+            if (dateStr) {
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                const weekday = t.weekday[date.getDay()];
+                
+                if (lang === 'en') {
+                    const monthName = t.months[month-1];
+                    visibleDateSubtitle.textContent = `${monthName} ${day}, ${year} · ${weekday}`;
+                } else {
+                    visibleDateSubtitle.textContent = `${year}年${month.toString().padStart(2, '0')}月${day.toString().padStart(2, '0')}日 ${weekday}`;
                 }
             }
         }
@@ -295,63 +309,29 @@
         });
     }
 
-    // Translate article content elements
+    // Translate article content elements (for article detail pages)
     function translateArticleContent(lang, t) {
-        // Translate article titles in the articles list
-        const articlesList = document.querySelector('.articles-list');
-        if (articlesList) {
-            const h2s = articlesList.querySelectorAll('h2');
-            h2s.forEach(h2 => {
-                if (lang === 'zh') {
-                    // Translate common article titles to Chinese
-                    h2.textContent = h2.textContent
-                        .replace('Liquid Swords: Why Choose UE5 for Developing "Samson"', 'Liquid Swords：为什么选择 UE5 开发《Samson》')
-                        .replace('The Witcher 4 to Be Showcased at UE Fest 2026, Promises Better Performance', '巫师4 将在 UE Fest 2026 亮相，承诺更好的性能表现')
-                        .replace('FF7 Remake Part 3: Why Not Switch to UE5?', 'FF7重制版Part 3：为什么不换 UE5？')
-                        .replace('GitHub Agentic Workflows: AI-Powered Codebase Automation', 'GitHub Agentic Workflows：AI 驱动的代码库自动化')
-                        .replace('The Rising Wave of UGC Creators: From Genshin Impact\'s Realm of Wonders', 'UGC 创作者的新浪潮：从《原神》千星奇域谈起');
-                } else {
-                    // Translate back to English
-                    h2.textContent = h2.textContent
-                        .replace('Liquid Swords：为什么选择 UE5 开发《Samson》', 'Liquid Swords: Why Choose UE5 for Developing "Samson"')
-                        .replace('巫师4 将在 UE Fest 2026 亮相，承诺更好的性能表现', 'The Witcher 4 to Be Showcased at UE Fest 2026, Promises Better Performance')
-                        .replace('FF7重制版Part 3：为什么不换 UE5？', 'FF7 Remake Part 3: Why Not Switch to UE5?')
-                        .replace('GitHub Agentic Workflows：AI 驱动的代码库自动化', 'GitHub Agentic Workflows: AI-Powered Codebase Automation')
-                        .replace('UGC 创作者的新浪潮：从《原神》千星奇域谈起', 'The Rising Wave of UGC Creators: From Genshin Impact\'s Realm of Wonders');
-                }
-            });
+        // Only translate on article detail pages, not home page
+        if (document.querySelector('.hero-section[data-lang]')) {
+            // Home page with dual language support - no need to translate
+            return;
         }
 
         // Translate "阅读原文" / "Read original" links
         const sourceLinks = document.querySelectorAll('.source-link');
         sourceLinks.forEach(link => {
             if (lang === 'en') {
-                // Replace Chinese phrases with English
                 link.textContent = link.textContent
                     .replace('🔗 阅读原文：', '🔗 Read original: ')
                     .replace('🔗 阅读原文', t.sourceLink);
-                
-                // Translate common phrases in link text
-                for (const [cn, en] of Object.entries({
-                    '发售信息': 'Release Info',
-                    '引擎选择访谈': 'Engine Choice Interview',
-                    '发布': 'Release',
-                    '分析': 'Analysis',
-                    '亮相': 'Showcase',
-                    '为什么选择': 'Why Choose',
-                    '开发': 'Development'
-                })) {
-                    link.textContent = link.textContent.replace(cn, en);
-                }
             } else {
                 link.textContent = link.textContent
                     .replace('🔗 Read original: ', '🔗 阅读原文：')
-                    .replace('🔗 Read original', t.sourceLink)
-                    .replace('🔗 Read Original', t.sourceLink);
+                    .replace('🔗 Read original', t.sourceLink);
             }
         });
 
-        // Translate article titles (h2) in article content
+        // Translate article titles
         const articleContent = document.querySelector('.article-content');
         if (articleContent) {
             const h2s = articleContent.querySelectorAll('h2');
@@ -367,75 +347,19 @@
                     })) {
                         h2.innerHTML = h2.innerHTML.replace(new RegExp(en, 'g'), cn);
                     }
-                } else {
-                    for (const [cn, en] of Object.entries({
-                        '为什么': 'Why',
-                        '选择': 'Choose',
-                        '开发': 'Developing',
-                        '：': ': ',
-                        '将在': 'Will Be at',
-                        '亮相': 'Showcased',
-                        '承诺': 'Promises',
-                        '更好的': 'Better',
-                        '性能表现': 'Performance',
-                        '为什么不换': 'Why Not Switch to',
-                        '的新浪潮': 'Rising Wave',
-                        '从': 'From',
-                        '谈起': 'Discussion',
-                        'AI 驱动': 'AI-Powered',
-                        '代码库': 'Codebase',
-                        '自动化': 'Automation'
-                    })) {
-                        h2.innerHTML = h2.innerHTML.replace(new RegExp(cn, 'g'), en);
-                    }
                 }
             });
-        }
 
-        // Translate "关键要点" / "Key Points" headers
-        if (articleContent) {
             const h3s = articleContent.querySelectorAll('h3');
             h3s.forEach(h3 => {
-                const text = h3.textContent.trim();
                 if (lang === 'zh') {
                     h3.innerHTML = h3.innerHTML
                         .replace('Key Technology: ', '关键技术：')
                         .replace('Giving Artists More Freedom', '让美术更自由')
-                        .replace('Real-time Lighting Revolutionizes Workflow', '实时光照革新工作流')
-                        .replace('Migration Considerations', '的迁移考量')
-                        .replace('Key Directions for Performance Optimization', '性能优化的关键方向')
-                        .replace('The Real Cost of Engine Migration', '引擎迁移的真实成本')
-                        .replace('When to Stick with Existing Solutions', '何时应该坚持现有方案')
-                        .replace('Automation Opportunities in Game Development', '游戏开发中的自动化机会')
-                        .replace('Practical Scenarios for Technical Designers', '技术策划的实用场景')
-                        .replace('UGC Design from a Technical Designer\'s Perspective', '技术策划视角的 UGC 设计')
-                        .replace('How to Design Game Editors', '如何设计游戏编辑器');
-                } else {
-                    h3.innerHTML = h3.innerHTML
-                        .replace('关键技术：', 'Key Technology: ')
-                        .replace('让美术更自由', 'Giving Artists More Freedom')
-                        .replace('实时光照革新工作流', 'Real-time Lighting Revolutionizes Workflow')
-                        .replace('的迁移考量', 'Migration Considerations')
-                        .replace('性能优化的关键方向', 'Key Directions for Performance Optimization')
-                        .replace('引擎迁移的真实成本', 'The Real Cost of Engine Migration')
-                        .replace('何时应该坚持现有方案', 'When to Stick with Existing Solutions')
-                        .replace('游戏开发中的自动化机会', 'Automation Opportunities in Game Development')
-                        .replace('技术策划的实用场景', 'Practical Scenarios for Technical Designers')
-                        .replace('技术策划视角的 UGC 设计', 'UGC Design from a Technical Designer\'s Perspective')
-                        .replace('如何设计游戏编辑器', 'How to Design Game Editors');
+                        .replace('Real-time Lighting Revolutionizes Workflow', '实时光照革新工作流');
                 }
             });
         }
-
-        // Translate "阅读原文" in article footer links
-        const articleFooterLinks = document.querySelectorAll('.article-footer-link');
-        articleFooterLinks.forEach(footer => {
-            if (lang === 'zh') {
-                footer.innerHTML = footer.innerHTML.replace('Read original: ', '阅读原文：');
-            } else {
-                footer.innerHTML = footer.innerHTML.replace('阅读原文：', 'Read original: ');
-            }
-        });
 
         // Translate footer text
         const footerText = document.querySelector('.site-footer p');
