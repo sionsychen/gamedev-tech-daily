@@ -1,8 +1,11 @@
 # Site settings
-title: "游戏技术策划日报"
-description: "每日精选游戏开发技术文章 - 聚焦技术策划、UE5/Unity、开放世界、工具链"
+title: "GameDev Tech Daily"
+description: "Daily curated game development technical articles - Focus on Technical Design, UE5/Unity, Open World, Toolchains"
 baseurl: "/gamedev-tech-daily"
 url: "https://sionsychen.github.io"
+
+# Default language
+lang: en
 
 # Build settings
 markdown: kramdown

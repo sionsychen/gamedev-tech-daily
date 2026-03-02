@@ -176,9 +176,14 @@
         }
     };
 
-    // Get current language
+    // Get current language - 默认英文
     function getLanguage() {
-        return localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG;
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) {
+            localStorage.setItem(STORAGE_KEY, DEFAULT_LANG);
+            return DEFAULT_LANG;
+        }
+        return stored;
     }
 
     // Set language
@@ -192,6 +197,9 @@
     // Apply translations
     function applyTranslations(lang) {
         const t = i18n[lang];
+        
+        // Update page title
+        document.title = t.siteTitle;
         
         // Site title and description
         const siteTitle = document.querySelector('.site-title a');
