@@ -379,12 +379,9 @@
     function updateDateDisplay(lang, t) {
         const dateSubtitle = document.querySelector('.date-subtitle');
         if (dateSubtitle) {
-            const text = dateSubtitle.textContent;
-            const match = text.match(/(\d{4})年(\d{2})月(\d{2})日/);
-            if (match) {
-                const year = match[1];
-                const month = parseInt(match[2]);
-                const day = parseInt(match[3]);
+            const dateStr = dateSubtitle.getAttribute('data-date');
+            if (dateStr) {
+                const [year, month, day] = dateStr.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
                 const weekday = t.weekday[date.getDay()];
                 
@@ -392,21 +389,7 @@
                     const monthName = t.months[month-1];
                     dateSubtitle.textContent = `${monthName} ${day}, ${year} · ${weekday}`;
                 } else {
-                    dateSubtitle.textContent = `${year}年${match[2]}月${match[3]}日 ${weekday}`;
-                }
-            } else {
-                // Handle English format dates
-                const matchEn = text.match(/([A-Za-z]+)\s+(\d+),\s+(\d{4})/);
-                if (matchEn && lang === 'zh') {
-                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                      'July', 'August', 'September', 'October', 'November', 'December'];
-                    const monthIndex = monthNames.indexOf(matchEn[1]);
-                    if (monthIndex !== -1) {
-                        const date = new Date(parseInt(matchEn[3]), monthIndex, parseInt(matchEn[2]));
-                        const weekday = t.weekday[date.getDay()];
-                        const monthZh = monthIndex + 1;
-                        dateSubtitle.textContent = `${matchEn[3]}年${monthZh.toString().padStart(2, '0')}月${matchEn[2].padStart(2, '0')}日 ${weekday}`;
-                    }
+                    dateSubtitle.textContent = `${year}年${month.toString().padStart(2, '0')}月${day.toString().padStart(2, '0')}日 ${weekday}`;
                 }
             }
         }

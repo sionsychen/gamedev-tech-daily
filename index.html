@@ -8,7 +8,7 @@ title: Home
 <section class="hero-section">
     <div class="date-info">
         <h2 class="daily-title">{{ latest_post.title }}</h2>
-        <p class="date-subtitle">{{ latest_post.date | date: "%Y年%m月%d日" }} {{ latest_post.date | date: "%A" }}</p>
+        <p class="date-subtitle" data-date="{{ latest_post.date | date: '%Y-%m-%d' }}">{{ latest_post.date | date: "%Y-%m-%d" }}</p>
     </div>
 </section>
 
