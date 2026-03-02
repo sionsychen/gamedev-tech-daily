@@ -1,22 +1,22 @@
 ---
 layout: default
-title: 搜索
+title: Search
 ---
 
 <section class="headlines-section">
-    <h3 class="section-title">搜索日报</h3>
+    <h3 class="section-title">Search</h3>
     
     <div class="search-box">
-        <input type="text" id="search-input" placeholder="输入关键词搜索文章..." autocomplete="off">
+        <input type="text" id="search-input" placeholder="Enter keywords to search..." autocomplete="off">
     </div>
     
     <div id="search-results" class="search-results">
-        <p style="color: #999;">输入关键词开始搜索...</p>
+        <p style="color: #999;">Enter keywords to start searching...</p>
     </div>
 </section>
 
 <script>
-// 搜索索引数据
+// Search index data
 const searchData = [
     {% for post in site.posts %}
     {
@@ -36,7 +36,7 @@ searchInput.addEventListener('input', function() {
     const query = this.value.toLowerCase().trim();
     
     if (query.length < 2) {
-        searchResults.innerHTML = '<p style="color: #999;">输入关键词开始搜索...</p>';
+        searchResults.innerHTML = '<p style="color: #999;">Enter keywords to start searching...</p>';
         return;
     }
     
@@ -51,11 +51,11 @@ searchInput.addEventListener('input', function() {
 
 function displayResults(results, query) {
     if (results.length === 0) {
-        searchResults.innerHTML = '<p>没有找到相关文章</p>';
+        searchResults.innerHTML = '<p>No articles found</p>';
         return;
     }
     
-    let html = `<p style="margin-bottom: 1rem;">找到 ${results.length} 篇相关文章：</p>`;
+    let html = `<p style="margin-bottom: 1rem;">Found ${results.length} article(s):</p>`;
     
     results.forEach(item => {
         html += `

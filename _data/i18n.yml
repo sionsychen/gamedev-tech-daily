@@ -1,0 +1,72 @@
+# 网站国际化翻译
+# Internationalization for GameDev Tech Daily
+
+en:
+  site:
+    title: "GameDev Tech Daily"
+    description: "Daily curated game development technical articles - Focus on Technical Design, UE5/Unity, Open World, Toolchains"
+  nav:
+    home: "Home"
+    search: "Search"
+    categories: "Categories"
+    rss: "RSS"
+  home:
+    hero_title: "Daily Report"
+    today_headlines: "Today's Headlines"
+    archive: "Archive"
+    more: "View More →"
+    read_more: "Read More"
+  article:
+    back_to_home: "← Back to Home"
+    categories: "Categories"
+  footer:
+    copyright: "© {year} GameDev Tech Daily | Auto-updated Daily"
+    auto_update: "Daily Auto Update"
+  language:
+    switch: "中文"
+    current: "English"
+  date:
+    format: "%B %d, %Y"
+    weekdays:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday
+
+zh:
+  site:
+    title: "游戏技术策划日报"
+    description: "每日精选游戏开发技术文章 - 聚焦技术策划、UE5/Unity、开放世界、工具链"
+  nav:
+    home: "首页"
+    search: "搜索"
+    categories: "分类"
+    rss: "RSS"
+  home:
+    hero_title: "今日头条"
+    today_headlines: "今日头条"
+    archive: "历史日报"
+    more: "查看更多 →"
+    read_more: "阅读全文"
+  article:
+    back_to_home: "← 返回首页"
+    categories: "分类"
+  footer:
+    copyright: "© {year} 游戏技术策划日报 | 每日自动更新"
+    auto_update: "每日自动更新"
+  language:
+    switch: "EN"
+    current: "中文"
+  date:
+    format: "%Y年%m月%d日"
+    weekdays:
+      - 星期日
+      - 星期一
+      - 星期二
+      - 星期三
+      - 星期四
+      - 星期五
+      - 星期六

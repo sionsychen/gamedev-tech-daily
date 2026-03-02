@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 首页
+title: Home
 ---
 
 {% assign latest_post = site.posts.first %}
@@ -13,7 +13,7 @@ title: 首页
 </section>
 
 <section class="headlines-section">
-    <h3 class="section-title">今日头条</h3>
+    <h3 class="section-title">Today's Headlines</h3>
     
     <div class="articles-list">
         {{ latest_post.content }}
@@ -21,7 +21,7 @@ title: 首页
 </section>
 
 <section class="archive-section">
-    <h3 class="section-title">历史日报</h3>
+    <h3 class="section-title">Archive</h3>
     <div class="archive-list">
         {% for post in site.posts offset:1 limit:10 %}
         <div class="archive-item">
@@ -31,6 +31,6 @@ title: 首页
         {% endfor %}
     </div>
     {% if site.posts.size > 11 %}
-    <a href="{{ '/archive' | relative_url }}" class="more-link">查看更多 →</a>
+    <a href="{{ '/archive' | relative_url }}" class="more-link">View More →</a>
     {% endif %}
 </section>
