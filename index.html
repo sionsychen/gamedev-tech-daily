@@ -5,17 +5,22 @@ title: Home
 
 {% assign latest_post = site.posts.first %}
 {% assign latest_date = latest_post.date | date: '%Y-%m-%d' %}
-{% assign en_post_path = latest_date | append: '-daily-en.md' %}
-{% assign en_post = site.posts | where_exp: "p", "p.path contains '-en.md'" | where: "date", latest_post.date | first %}
+{% assign en_post = nil %}
+{% for p in site.posts %}
+  {% if p.path contains '-en.md' and p.date == latest_post.date %}
+    {% assign en_post = p %}
+  {% endif %}
+{% endfor %}
 
 {% assign year = latest_post.date | date: '%Y' %}
-{% assign month = latest_post.date | date: '%m' %}
-{% assign day = latest_post.date | date: '%d' %}
-{% assign weekday_num = latest_post.date | date: '%w' %}
+{% assign month = latest_post.date | date: '%m' | plus: 0 %}
+{% assign day = latest_post.date | date: '%d' | plus: 0 %}
+{% assign weekday_num = latest_post.date | date: '%w' | plus: 0 %}
 {% assign weekdays_zh = '星期日,星期一,星期二,星期三,星期四,星期五,星期六' | split: ',' %}
 {% assign weekdays_en = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday' | split: ',' %}
 {% assign months_en = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' %}
-{% assign month_name_en = months_en[month | minus: 1] %}
+{% assign month_idx = month | minus: 1 %}
+{% assign month_name_en = months_en[month_idx] %}
 
 {% assign zh_title = latest_post.title %}
 {% assign zh_content = latest_post.content %}
