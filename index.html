@@ -7,57 +7,47 @@ title: Home
 {% assign latest_date = latest_post.date | date: '%Y-%m-%d' %}
 {% assign en_post = nil %}
 {% for p in site.posts %}
-  {% if p.path contains '-en.md' and p.date == latest_post.date %}
+  {% if p.path contains '-en' and p.date == latest_post.date %}
     {% assign en_post = p %}
   {% endif %}
 {% endfor %}
 
 {% assign year = latest_post.date | date: '%Y' %}
-{% assign month = latest_post.date | date: '%m' | plus: 0 %}
-{% assign day = latest_post.date | date: '%d' | plus: 0 %}
-{% assign weekday_num = latest_post.date | date: '%w' | plus: 0 %}
+{% assign month = latest_post.date | date: '%m' %}
+{% assign day = latest_post.date | date: '%d' %}
+{% assign weekday_num = latest_post.date | date: '%w' %}
 {% assign weekdays_zh = '星期日,星期一,星期二,星期三,星期四,星期五,星期六' | split: ',' %}
 {% assign weekdays_en = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday' | split: ',' %}
 {% assign months_en = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' %}
 {% assign month_idx = month | minus: 1 %}
 {% assign month_name_en = months_en[month_idx] %}
 
-{% assign zh_title = latest_post.title %}
-{% assign zh_content = latest_post.content %}
-
 {% if en_post %}
   {% assign en_title = en_post.title %}
-  {% assign en_content = en_post.content %}
 {% else %}
   {% assign en_title = "GameDev Tech Daily - " | append: month_name_en | append: " " | append: day | append: ", " | append: year %}
-  {% assign en_content = zh_content %}
 {% endif %}
 
+<!-- 中文版内容 -->
+<div id="zh-content" style="display:block">
 <section class="hero-section">
     <div class="date-info">
-        <h2 class="daily-title" id="daily-title" data-zh="{{ zh_title }}" data-en="{{ en_title }}">{{ zh_title }}</h2>
-        <p class="date-subtitle" id="date-subtitle" 
-           data-date="{{ latest_date }}"
-           data-zh="{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}"
-           data-en="{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
+        <h2 class="daily-title" id="daily-title-zh">{{ latest_post.title }}</h2>
+        <p class="date-subtitle" id="date-subtitle-zh">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
     </div>
 </section>
 
 <section class="headlines-section">
-    <h3 class="section-title" id="headlines-title" data-zh="今日头条" data-en="Today's Headlines">今日头条</h3>
+    <h3 class="section-title">今日头条</h3>
     
-    <div class="articles-list" id="articles-content"
-         data-zh="{{ zh_content | xml_escape }}"
-         data-en="{{ en_content | xml_escape }}">
+    <div class="articles-list">
         {{ latest_post.content }}
     </div>
 </section>
 
 <section class="archive-section">
-    <h3 class="section-title" id="archive-title" data-zh="历史日报" data-en="Archive">历史日报</h3>
-    <div class="archive-list" id="archive-list"
-         data-zh="{% for post in site.posts offset:1 limit:10 %}{% unless post.path contains '-en' %}<div class='archive-item'><a href='{{ post.url | relative_url }}'>{{ post.title }}</a><span class='archive-date'>{{ post.date | date: '%m-%d' }}</span></div>{% endunless %}{% endfor %}"
-         data-en="{% for post in site.posts offset:1 limit:10 %}{% unless post.path contains '-en' %}{% assign en_p = site.posts | where_exp: 'p', 'p.path contains post.date | date: '%Y-%m-%d' | append: '-daily-en.md'' | first %}<div class='archive-item'>{% if en_p %}<a href='{{ en_p.url | relative_url }}'>{{ en_p.title }}</a>{% else %}<a href='{{ post.url | relative_url }}'>{{ post.title }}</a>{% endif %}<span class='archive-date'>{{ post.date | date: '%m-%d' }}</span></div>{% endunless %}{% endfor %}">
+    <h3 class="section-title">历史日报</h3>
+    <div class="archive-list">
         {% for post in site.posts offset:1 limit:10 %}
         {% unless post.path contains '-en' %}
         <div class="archive-item">
@@ -67,14 +57,64 @@ title: Home
         {% endunless %}
         {% endfor %}
     </div>
-    
     {% if site.posts.size > 11 %}
-    <a href="{{ '/archive' | relative_url }}" class="more-link" id="more-link" data-zh="查看更多 →" data-en="View More →">查看更多 →</a>
+    <a href="{{ '/archive' | relative_url }}" class="more-link">查看更多 →</a>
     {% endif %}
 </section>
+</div>
+
+<!-- 英文版内容 -->
+<div id="en-content" style="display:none">
+<section class="hero-section">
+    <div class="date-info">
+        <h2 class="daily-title" id="daily-title-en">{{ en_title }}</h2>
+        <p class="date-subtitle" id="date-subtitle-en">{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}</p>
+    </div>
+</section>
+
+<section class="headlines-section">
+    <h3 class="section-title">Today's Headlines</h3>
+    
+    <div class="articles-list">
+        {% if en_post %}
+            {{ en_post.content }}
+        {% else %}
+            <p>English version not available yet. Please check back later.</p>
+            <p><a href="{{ latest_post.url | relative_url }}">View Chinese version →</a></p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="archive-section">
+    <h3 class="section-title">Archive</h3>
+    <div class="archive-list">
+        {% for post in site.posts offset:1 limit:10 %}
+        {% unless post.path contains '-en' %}
+        {% assign post_en = nil %}
+        {% for p in site.posts %}
+          {% if p.path contains '-en' and p.date == post.date %}
+            {% assign post_en = p %}
+          {% endif %}
+        {% endfor %}
+        <div class="archive-item">
+            {% if post_en %}
+                <a href="{{ post_en.url | relative_url }}">{{ post_en.title }}</a>
+            {% else %}
+                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            {% endif %}
+            <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
+        </div>
+        {% endunless %}
+        {% endfor %}
+    </div>
+    {% if site.posts.size > 11 %}
+    <a href="{{ '/archive' | relative_url }}" class="more-link">View More →</a>
+    {% endif %}
+</section>
+</div>
 
 <script>
-// Simple language switcher - all content embedded in data attributes
+// Language switcher
 window.applyTranslations = function(lang) {
     const t = window.i18n && window.i18n[lang] ? window.i18n[lang] : { 
         siteTitle: lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily",
@@ -88,45 +128,17 @@ window.applyTranslations = function(lang) {
     if (siteDesc) siteDesc.textContent = t.siteDesc;
     document.title = t.siteTitle;
     
-    // Update main content from data attributes
-    const dailyTitle = document.getElementById('daily-title');
-    const dateSubtitle = document.getElementById('date-subtitle');
-    const headlinesTitle = document.getElementById('headlines-title');
-    const archiveTitle = document.getElementById('archive-title');
-    const articlesContent = document.getElementById('articles-content');
-    const archiveList = document.getElementById('archive-list');
-    const moreLink = document.getElementById('more-link');
+    // Toggle content visibility
+    const zhContent = document.getElementById('zh-content');
+    const enContent = document.getElementById('en-content');
     
-    if (dailyTitle) dailyTitle.textContent = dailyTitle.getAttribute('data-' + lang);
-    if (dateSubtitle) dateSubtitle.textContent = dateSubtitle.getAttribute('data-' + lang);
-    if (headlinesTitle) headlinesTitle.textContent = headlinesTitle.getAttribute('data-' + lang);
-    if (archiveTitle) archiveTitle.textContent = archiveTitle.getAttribute('data-' + lang);
-    
-    // Update articles content (decode HTML entities)
-    if (articlesContent) {
-        const content = articlesContent.getAttribute('data-' + lang);
-        const decoded = content
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&amp;/g, '&');
-        articlesContent.innerHTML = decoded;
+    if (lang === 'zh') {
+        if (zhContent) zhContent.style.display = 'block';
+        if (enContent) enContent.style.display = 'none';
+    } else {
+        if (zhContent) zhContent.style.display = 'none';
+        if (enContent) enContent.style.display = 'block';
     }
-    
-    // Update archive list
-    if (archiveList) {
-        const content = archiveList.getAttribute('data-' + lang);
-        const decoded = content
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&amp;/g, '&');
-        archiveList.innerHTML = decoded;
-    }
-    
-    if (moreLink) moreLink.textContent = moreLink.getAttribute('data-' + lang);
     
     // Update footer
     const footerText = document.querySelector('.site-footer p');
@@ -143,12 +155,10 @@ window.applyTranslations = function(lang) {
 document.addEventListener('DOMContentLoaded', function() {
     const stored = localStorage.getItem('preferred-lang');
     if (stored && stored !== 'zh') {
-        // Check if there's a language switcher and trigger it
+        window.applyTranslations(stored);
+        // Update select element if exists
         const langSelect = document.getElementById('lang-select');
-        if (langSelect) {
-            langSelect.value = stored;
-            window.applyTranslations(stored);
-        }
+        if (langSelect) langSelect.value = stored;
     }
 });
 </script>
