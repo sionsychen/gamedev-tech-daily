@@ -3,19 +3,34 @@ layout: default
 title: Home
 ---
 
-{% assign latest_post = site.posts.first %}
-{% assign latest_date = latest_post.date | date: '%Y-%m-%d' %}
+{% assign today = site.time | date: '%Y-%m-%d' %}
+
+<!-- 找到今天的中文文章 -->
+{% assign zh_post = nil %}
+{% for p in site.posts %}
+  {% unless p.path contains '-en' %}
+    {% assign post_date = p.date | date: '%Y-%m-%d' %}
+    {% if zh_post == nil %}
+      {% assign zh_post = p %}
+    {% endif %}
+  {% endunless %}
+{% endfor %}
+
+<!-- 找到今天的英文文章 -->
 {% assign en_post = nil %}
 {% for p in site.posts %}
-  {% if p.path contains '-en' and p.date == latest_post.date %}
-    {% assign en_post = p %}
+  {% if p.path contains '-en' %}
+    {% assign post_date = p.date | date: '%Y-%m-%d' %}
+    {% if en_post == nil %}
+      {% assign en_post = p %}
+    {% endif %}
   {% endif %}
 {% endfor %}
 
-{% assign year = latest_post.date | date: '%Y' %}
-{% assign month = latest_post.date | date: '%m' %}
-{% assign day = latest_post.date | date: '%d' %}
-{% assign weekday_num = latest_post.date | date: '%w' %}
+{% assign year = zh_post.date | date: '%Y' %}
+{% assign month = zh_post.date | date: '%m' %}
+{% assign day = zh_post.date | date: '%d' %}
+{% assign weekday_num = zh_post.date | date: '%w' %}
 {% assign weekdays_zh = '星期日,星期一,星期二,星期三,星期四,星期五,星期六' | split: ',' %}
 {% assign weekdays_en = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday' | split: ',' %}
 {% assign months_en = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' %}
@@ -29,10 +44,10 @@ title: Home
 {% endif %}
 
 <!-- 中文版内容 -->
-<div id="zh-content" style="display:block">
+<div id="zh-content" class="lang-content" data-lang="zh">
 <section class="hero-section">
     <div class="date-info">
-        <h2 class="daily-title" id="daily-title-zh">{{ latest_post.title }}</h2>
+        <h2 class="daily-title" id="daily-title-zh">{{ zh_post.title }}</h2>
         <p class="date-subtitle" id="date-subtitle-zh">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
     </div>
 </section>
@@ -41,19 +56,21 @@ title: Home
     <h3 class="section-title">今日头条</h3>
     
     <div class="articles-list">
-        {{ latest_post.content }}
+        {{ zh_post.content }}
     </div>
 </section>
 
 <section class="archive-section">
     <h3 class="section-title">历史日报</h3>
     <div class="archive-list">
-        {% for post in site.posts offset:1 limit:10 %}
+        {% for post in site.posts %}
         {% unless post.path contains '-en' %}
+        {% if forloop.index > 1 and forloop.index <= 11 %}
         <div class="archive-item">
             <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
             <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
         </div>
+        {% endif %}
         {% endunless %}
         {% endfor %}
     </div>
@@ -64,7 +81,7 @@ title: Home
 </div>
 
 <!-- 英文版内容 -->
-<div id="en-content" style="display:none">
+<div id="en-content" class="lang-content" data-lang="en" style="display:none">
 <section class="hero-section">
     <div class="date-info">
         <h2 class="daily-title" id="daily-title-en">{{ en_title }}</h2>
@@ -75,12 +92,12 @@ title: Home
 <section class="headlines-section">
     <h3 class="section-title">Today's Headlines</h3>
     
-    <div class="articles-list">
+    <div class="articles-list" id="en-articles-list">
         {% if en_post %}
             {{ en_post.content }}
         {% else %}
             <p>English version not available yet. Please check back later.</p>
-            <p><a href="{{ latest_post.url | relative_url }}">View Chinese version →</a></p>
+            <p><a href="{{ zh_post.url | relative_url }}">View Chinese version →</a></p>
         {% endif %}
     </div>
 </section>
@@ -88,7 +105,7 @@ title: Home
 <section class="archive-section">
     <h3 class="section-title">Archive</h3>
     <div class="archive-list">
-        {% for post in site.posts offset:1 limit:10 %}
+        {% for post in site.posts %}
         {% unless post.path contains '-en' %}
         {% assign post_en = nil %}
         {% for p in site.posts %}
@@ -96,6 +113,7 @@ title: Home
             {% assign post_en = p %}
           {% endif %}
         {% endfor %}
+        {% if forloop.index > 1 and forloop.index <= 11 %}
         <div class="archive-item">
             {% if post_en %}
                 <a href="{{ post_en.url | relative_url }}">{{ post_en.title }}</a>
@@ -104,6 +122,7 @@ title: Home
             {% endif %}
             <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
         </div>
+        {% endif %}
         {% endunless %}
         {% endfor %}
     </div>
@@ -114,51 +133,61 @@ title: Home
 </div>
 
 <script>
-// Language switcher
-window.applyTranslations = function(lang) {
-    const t = window.i18n && window.i18n[lang] ? window.i18n[lang] : { 
-        siteTitle: lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily",
-        siteDesc: lang === 'zh' ? "每日精选游戏开发技术文章" : "Daily curated game development articles"
-    };
-    
-    // Update site title and description
-    const siteTitle = document.querySelector('.site-title a');
-    const siteDesc = document.querySelector('.site-description');
-    if (siteTitle) siteTitle.textContent = t.siteTitle;
-    if (siteDesc) siteDesc.textContent = t.siteDesc;
-    document.title = t.siteTitle;
-    
-    // Toggle content visibility
-    const zhContent = document.getElementById('zh-content');
-    const enContent = document.getElementById('en-content');
-    
-    if (lang === 'zh') {
-        if (zhContent) zhContent.style.display = 'block';
-        if (enContent) enContent.style.display = 'none';
-    } else {
-        if (zhContent) zhContent.style.display = 'none';
-        if (enContent) enContent.style.display = 'block';
+// Language switcher - Fixed version
+(function() {
+    function applyLanguage(lang) {
+        const zhContent = document.getElementById('zh-content');
+        const enContent = document.getElementById('en-content');
+        
+        if (!zhContent || !enContent) return;
+        
+        if (lang === 'zh') {
+            zhContent.style.display = 'block';
+            enContent.style.display = 'none';
+            document.documentElement.lang = 'zh-CN';
+        } else {
+            zhContent.style.display = 'none';
+            enContent.style.display = 'block';
+            document.documentElement.lang = 'en';
+        }
+        
+        // Update site title
+        const siteTitle = document.querySelector('.site-title a');
+        const siteDesc = document.querySelector('.site-description');
+        
+        if (siteTitle) {
+            siteTitle.textContent = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
+        }
+        if (siteDesc) {
+            siteDesc.textContent = lang === 'zh' 
+                ? "每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链"
+                : "Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains";
+        }
+        
+        document.title = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
+        
+        // Update footer
+        const footerText = document.querySelector('.site-footer p');
+        if (footerText) {
+            const year = new Date().getFullYear();
+            footerText.innerHTML = `© ${year} ${lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily"} | ${lang === 'zh' ? '每日自动更新' : 'Daily Auto Update'}`;
+        }
+        
+        localStorage.setItem('preferred-lang', lang);
     }
     
-    // Update footer
-    const footerText = document.querySelector('.site-footer p');
-    if (footerText) {
-        const year = new Date().getFullYear();
-        footerText.innerHTML = `© ${year} ${t.siteTitle} | ${lang === 'zh' ? '每日自动更新' : 'Daily Auto Update'}`;
-    }
+    // Expose to global scope for dropdown
+    window.applyTranslations = applyLanguage;
     
-    // Store preference
-    localStorage.setItem('preferred-lang', lang);
-};
-
-// Apply stored preference on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const stored = localStorage.getItem('preferred-lang');
-    if (stored && stored !== 'zh') {
-        window.applyTranslations(stored);
-        // Update select element if exists
-        const langSelect = document.getElementById('lang-select');
-        if (langSelect) langSelect.value = stored;
-    }
-});
+    // Apply on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const stored = localStorage.getItem('preferred-lang');
+        if (stored) {
+            applyLanguage(stored);
+            // Update select element if exists
+            const langSelect = document.getElementById('lang-select');
+            if (langSelect) langSelect.value = stored;
+        }
+    });
+})();
 </script>
