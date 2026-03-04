@@ -4,9 +4,6 @@ description: "Daily curated game development technical articles - Focus on Techn
 baseurl: "/gamedev-tech-daily"
 url: "https://sionsychen.github.io"
 
-# Default language
-lang: en
-
 # Build settings
 markdown: kramdown
 highlighter: rouge
