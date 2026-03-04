@@ -4,24 +4,28 @@ title: Home
 ---
 
 {% comment %}
-找到最新文章 - 分别获取中文和英文
+严格分离中英文内容 - 使用文件名匹配
 {% endcomment %}
 
-{% assign zh_post = nil %}
-{% assign en_post = nil %}
-{% assign latest_date = nil %}
+{% assign today = site.time | date: '%Y-%m-%d' %}
 
+<!-- 获取最新日期 -->
+{% assign latest_date = nil %}
 {% for post in site.posts %}
   {% assign post_date = post.date | date: '%Y-%m-%d' %}
-  {% if latest_date == nil or post_date > latest_date %}
+  {% if latest_date == nil or post_date >= latest_date %}
     {% assign latest_date = post_date %}
   {% endif %}
 {% endfor %}
 
+<!-- 分别获取中英文文章 -->
+{% assign zh_post = nil %}
+{% assign en_post = nil %}
+
 {% for post in site.posts %}
   {% assign post_date = post.date | date: '%Y-%m-%d' %}
   {% if post_date == latest_date %}
-    {% if post.path contains '-en' %}
+    {% if post.path contains '-en' or post.lang == 'en' %}
       {% assign en_post = post %}
     {% else %}
       {% assign zh_post = post %}
@@ -29,13 +33,28 @@ title: Home
   {% endif %}
 {% endfor %}
 
+<!-- 如果没有找到对应语言的文章，使用默认 -->
 {% if zh_post == nil %}
-  {% assign zh_post = site.posts.first %}
+  {% for post in site.posts %}
+    {% unless post.path contains '-en' %}
+      {% assign zh_post = post %}
+      {% break %}
+    {% endunless %}
+  {% endfor %}
 {% endif %}
 
-{% assign year = zh_post.date | date: '%Y' %}
-{% assign month = zh_post.date | date: '%m' %}
-{% assign day = zh_post.date | date: '%d' %}
+{% if en_post == nil %}
+  {% for post in site.posts %}
+    {% if post.path contains '-en' %}
+      {% assign en_post = post %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign year = latest_date | split: '-' | first %}
+{% assign month = latest_date | split: '-' | slice: 1 | first %}
+{% assign day = latest_date | split: '-' | slice: 2 | first %}
 {% assign weekday_num = zh_post.date | date: '%w' %}
 {% assign weekdays_zh = '星期日,星期一,星期二,星期三,星期四,星期五,星期六' | split: ',' %}
 {% assign weekdays_en = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday' | split: ',' %}
@@ -43,13 +62,7 @@ title: Home
 {% assign month_idx = month | minus: 1 %}
 {% assign month_name_en = months_en[month_idx] %}
 
-{% if en_post %}
-  {% assign en_title = en_post.title %}
-{% else %}
-  {% assign en_title = "GameDev Tech Daily - " | append: month_name_en | append: " " | append: day | append: ", " | append: year %}
-{% endif %}
-
-<!-- 中文版内容 -->
+<!-- 中文版内容 - 严格使用中文文章 -->
 <div id="zh-content" class="lang-content" data-lang="zh">
   <section class="hero-section">
     <div class="date-info">
@@ -68,15 +81,15 @@ title: Home
   <section class="archive-section">
     <h3 class="section-title">历史日报</h3>
     <div class="archive-list">
-      {% assign zh_count = 0 %}
+      {% assign count = 0 %}
       {% for post in site.posts %}
-        {% unless post.path contains '-en' %}
-          {% if zh_count < 10 %}
+        {% unless post.path contains '-en' or post.lang == 'en' %}
+          {% if count < 10 %}
             <div class="archive-item">
               <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
               <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
             </div>
-            {% assign zh_count = zh_count | plus: 1 %}
+            {% assign count = count | plus: 1 %}
           {% endif %}
         {% endunless %}
       {% endfor %}
@@ -85,11 +98,11 @@ title: Home
   </section>
 </div>
 
-<!-- 英文版内容 -->
+<!-- 英文版内容 - 严格使用英文文章 -->
 <div id="en-content" class="lang-content" data-lang="en" style="display:none">
   <section class="hero-section">
     <div class="date-info">
-      <h2 class="daily-title">{{ en_title }}</h2>
+      <h2 class="daily-title">{{ en_post.title }}</h2>
       <p class="date-subtitle">{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}</p>
     </div>
   </section>
@@ -109,15 +122,15 @@ title: Home
   <section class="archive-section">
     <h3 class="section-title">Archive</h3>
     <div class="archive-list">
-      {% assign en_count = 0 %}
+      {% assign count = 0 %}
       {% for post in site.posts %}
-        {% if post.path contains '-en' %}
-          {% if en_count < 10 %}
+        {% if post.path contains '-en' or post.lang == 'en' %}
+          {% if count < 10 %}
             <div class="archive-item">
               <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
               <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
             </div>
-            {% assign en_count = en_count | plus: 1 %}
+            {% assign count = count | plus: 1 %}
           {% endif %}
         {% endif %}
       {% endfor %}
@@ -144,26 +157,30 @@ title: Home
       document.documentElement.lang = 'en';
     }
     
-    // Update site title
-    const siteTitle = document.querySelector('.site-title a');
-    const siteDesc = document.querySelector('.site-description');
+    // Update site elements
+    const siteTitle = document.getElementById('site-title-link');
+    const siteDesc = document.getElementById('site-desc');
+    const navHome = document.getElementById('nav-home');
+    const navSearch = document.getElementById('nav-search');
+    const navCategories = document.getElementById('nav-categories');
+    const footerText = document.getElementById('footer-text');
     
-    if (siteTitle) {
-      siteTitle.textContent = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
-    }
-    if (siteDesc) {
-      siteDesc.textContent = lang === 'zh' 
-        ? "每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链"
-        : "Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains";
-    }
-    
-    document.title = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
-    
-    // Update footer
-    const footerText = document.querySelector('.site-footer p');
-    if (footerText) {
-      const year = new Date().getFullYear();
-      footerText.innerHTML = `© ${year} ${lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily"} | ${lang === 'zh' ? '每日自动更新' : 'Daily Auto Update'}`;
+    if (lang === 'zh') {
+      if (siteTitle) siteTitle.textContent = '游戏技术策划日报';
+      if (siteDesc) siteDesc.textContent = '每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链';
+      if (navHome) navHome.textContent = '首页';
+      if (navSearch) navSearch.textContent = '搜索';
+      if (navCategories) navCategories.textContent = '分类';
+      if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} 游戏技术策划日报 | 每日自动更新';
+      document.title = '游戏技术策划日报';
+    } else {
+      if (siteTitle) siteTitle.textContent = 'GameDev Tech Daily';
+      if (siteDesc) siteDesc.textContent = 'Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains';
+      if (navHome) navHome.textContent = 'Home';
+      if (navSearch) navSearch.textContent = 'Search';
+      if (navCategories) navCategories.textContent = 'Categories';
+      if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} GameDev Tech Daily | Daily Auto Update';
+      document.title = 'GameDev Tech Daily';
     }
     
     localStorage.setItem('preferred-lang', lang);
