@@ -4,18 +4,49 @@ title: Search
 ---
 
 <section class="headlines-section">
-    <h3 class="section-title">Search</h3>
+    <h3 class="section-title" id="search-title">Search</h3>
     
-    <div class="search-box">
-        <input type="text" id="search-input" placeholder="Enter keywords to search..." autocomplete="off">
+    <div class="search-filters" style="margin-bottom: 1rem;">
+        <label style="margin-right: 1rem; cursor: pointer;">
+            <input type="checkbox" id="search-title" checked> Title
+        </label>
+        <label style="margin-right: 1rem; cursor: pointer;">
+            <input type="checkbox" id="search-excerpt" checked> Excerpt
+        </label>
+        <label style="margin-right: 1rem; cursor: pointer;">
+            <input type="checkbox" id="search-tags" checked> Tags
+        </label>
     </div>
     
-    <div id="search-results" class="search-results">
+    <div class="search-box" style="position: relative;">
+        <input type="text" id="search-input" placeholder="Search articles, tags, or keywords..." autocomplete="off" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
+    </div>
+    
+    <div id="search-results" class="search-results" style="margin-top: 1.5rem;">
         <p style="color: #999;">Enter keywords to start searching...</p>
     </div>
 </section>
 
 <script>
+// Extract tags from article content
+function extractTags(content) {
+    const tagRegex = /#([\u4e00-\u9fa5a-zA-Z]+)/g;
+    const tags = [];
+    let match;
+    while ((match = tagRegex.exec(content)) !== null) {
+        tags.push(match[1]);
+    }
+    return tags;
+}
+
+// Extract excerpt (first paragraph)
+function extractExcerpt(content) {
+    // Remove HTML tags
+    const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    // Get first 200 chars
+    return text.substring(0, 200) + (text.length > 200 ? '...' : '');
+}
+
 // Search index data
 const searchData = [
     {% for post in site.posts %}
@@ -23,30 +54,84 @@ const searchData = [
         title: "{{ post.title | escape }}",
         url: "{{ post.url | relative_url }}",
         date: "{{ post.date | date: '%Y-%m-%d' }}",
+        lang: "{% if post.path contains '-en' or post.lang == 'en' %}en{% else %}zh{% endif %}",
         categories: [{% for cat in post.categories %}"{{ cat }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
-        content: "{{ post.content | strip_html | escape | truncate: 300 }}"
+        content: "{{ post.content | strip_html | escape | truncate: 500 }}",
+        rawContent: `{{ post.content | escape }}`
     }{% unless forloop.last %},{% endunless %}
     {% endfor %}
-];
+].map(item => ({
+    ...item,
+    tags: extractTags(item.rawContent),
+    excerpt: extractExcerpt(item.rawContent)
+}));
 
 const searchInput = document.getElementById('search-input');
 const searchResults = document.getElementById('search-results');
+const searchTitle = document.getElementById('search-title');
+const searchExcerpt = document.getElementById('search-excerpt');
+const searchTags = document.getElementById('search-tags');
+
+function getActiveFilters() {
+    return {
+        title: document.querySelector('input#search-title[type="checkbox"]')?.checked ?? true,
+        excerpt: document.querySelector('input#search-excerpt[type="checkbox"]')?.checked ?? true,
+        tags: document.querySelector('input#search-tags[type="checkbox"]')?.checked ?? true
+    };
+}
 
 searchInput.addEventListener('input', function() {
     const query = this.value.toLowerCase().trim();
+    const filters = getActiveFilters();
     
     if (query.length < 2) {
         searchResults.innerHTML = '<p style="color: #999;">Enter keywords to start searching...</p>';
         return;
     }
     
-    const results = searchData.filter(item => {
-        return item.title.toLowerCase().includes(query) ||
-               item.content.toLowerCase().includes(query) ||
-               item.categories.some(cat => cat.toLowerCase().includes(query));
-    });
+    const results = searchData.map(item => {
+        let score = 0;
+        const matches = {
+            title: false,
+            excerpt: false,
+            tags: []
+        };
+        
+        // Title search (highest priority)
+        if (filters.title && item.title.toLowerCase().includes(query)) {
+            score += 10;
+            matches.title = true;
+        }
+        
+        // Tag search (high priority)
+        if (filters.tags) {
+            item.tags.forEach(tag => {
+                if (tag.toLowerCase().includes(query)) {
+                    score += 5;
+                    matches.tags.push(tag);
+                }
+            });
+        }
+        
+        // Excerpt search (normal priority)
+        if (filters.excerpt && item.excerpt.toLowerCase().includes(query)) {
+            score += 3;
+            matches.excerpt = true;
+        }
+        
+        return { ...item, score, matches };
+    }).filter(item => item.score > 0).sort((a, b) => b.score - a.score);
     
     displayResults(results, query);
+});
+
+// Update search when filters change
+document.querySelectorAll('.search-filters input').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        if (searchInput.value.trim().length >= 2) {
+            searchInput.dispatchEvent(new Event('input'));
+        }
+    });
 });
 
 function displayResults(results, query) {
@@ -55,13 +140,53 @@ function displayResults(results, query) {
         return;
     }
     
-    let html = `<p style="margin-bottom: 1rem;">Found ${results.length} article(s):</p>`;
+    let html = `<p style="margin-bottom: 1rem; color: #666;">
+        Found <strong>${results.length}</strong> article(s)
+        ${results.some(r => r.matches.tags.length > 0) ? ' • Tag matching enabled' : ''}
+    </p>`;
     
     results.forEach(item => {
+        // Build match indicators
+        const indicators = [];
+        if (item.matches.title) indicators.push('<span style="color: #e74c3c; font-size: 0.8rem;">📌 Title</span>');
+        if (item.matches.tags.length > 0) indicators.push(`<span style="color: #3498db; font-size: 0.8rem;">🏷️ ${item.matches.tags.length} tag(s)</span>`);
+        if (item.matches.excerpt) indicators.push('<span style="color: #27ae60; font-size: 0.8rem;">📝 Excerpt</span>');
+        
+        // Highlight tags
+        const tagDisplay = item.tags.slice(0, 5).map(tag => {
+            const isMatched = item.matches.tags.includes(tag);
+            return `<span style="display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 12px; font-size: 0.75rem; ${isMatched ? 'background: #3498db; color: white;' : 'background: #ecf0f1; color: #666;'}">#${tag}</span>`;
+        }).join('');
+        
+        // Get excerpt with highlighted query
+        let excerptText = item.excerpt;
+        if (item.matches.excerpt) {
+            const idx = item.excerpt.toLowerCase().indexOf(query);
+            if (idx >= 0) {
+                const start = Math.max(0, idx - 50);
+                const end = Math.min(item.excerpt.length, idx + query.length + 100);
+                excerptText = (start > 0 ? '...' : '') + 
+                             item.excerpt.substring(start, end) + 
+                             (end < item.excerpt.length ? '...' : '');
+            }
+        }
+        
         html += `
-            <div class="archive-item" style="flex-direction: column; align-items: flex-start;">
-                <a href="${item.url}" style="font-weight: 500;">${highlight(item.title, query)}</a>
-                <span style="color: #999; font-size: 0.85rem; margin-top: 0.25rem;">${item.date}</span>
+            <div class="search-result-item" style="padding: 1rem; margin-bottom: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${item.lang === 'en' ? '#3498db' : '#e74c3c'};">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <a href="${item.url}" style="font-weight: 600; font-size: 1.1rem; color: #2c3e50; text-decoration: none;">
+                        ${highlight(item.title, query)}
+                    </a>
+                    <span style="color: #999; font-size: 0.85rem; white-space: nowrap;">${item.date} ${item.lang === 'en' ? '🇺🇸' : '🇨🇳'}</span>
+                </div>
+                
+                <div style="margin-bottom: 0.5rem;">${indicators.join(' <span style="color: #ddd;">|</span> ')}</div>
+                
+                <div style="font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 0.5rem;">
+                    ${item.matches.excerpt ? highlight(excerptText, query) : excerptText.substring(0, 150) + '...'}
+                </div>
+                
+                <div style="margin-top: 0.5rem;">${tagDisplay}</div>
             </div>
         `;
     });
@@ -70,7 +195,12 @@ function displayResults(results, query) {
 }
 
 function highlight(text, query) {
-    const regex = new RegExp(`(${query})`, 'gi');
-    return text.replace(regex, '<mark style="background: #fff3cd;">$1</mark>');
+    if (!query) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<mark style="background: #fff3cd; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+}
+
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 </script>
