@@ -3,21 +3,21 @@ layout: null
 ---
 
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
-    <title>游戏技术策划日报</title>
-    <subtitle>每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链</subtitle>
-    <link href="{{ '/feed.xml' | absolute_url }}" rel="self"/>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>GameDev Tech Daily</title>
+    <subtitle>Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World &amp; Toolchains</subtitle>
+    <link href="{{ '/feed-en.xml' | absolute_url }}" rel="self"/>
     <link href="{{ '/' | absolute_url }}"/>
     <updated>{{ site.time | date_to_xmlschema }}</updated>
     <id>{{ '/' | absolute_url }}</id>
     <author>
-        <name>游戏技术策划日报</name>
+        <name>GameDev Tech Daily</name>
     </author>
     <icon>{{ '/assets/images/favicon.ico' | absolute_url }}</icon>
     <logo>{{ '/assets/images/logo.png' | absolute_url }}</logo>
     
     {% for post in site.posts %}
-    {% unless post.path contains '-en' or post.lang == 'en' %}
+    {% if post.path contains '-en' or post.lang == 'en' %}
     <entry>
         <title>{{ post.title | xml_escape }}</title>
         <link href="{{ post.url | absolute_url }}"/>
@@ -30,6 +30,6 @@ layout: null
         <category term="{{ category | xml_escape }}"/>
         {% endfor %}
     </entry>
-    {% endunless %}
+    {% endif %}
     {% endfor %}
 </feed>

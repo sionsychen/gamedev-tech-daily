@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site.title }}</title>
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+    <link rel="alternate" type="application/rss+xml" title="游戏技术策划日报 (中文)" href="{{ '/feed.xml' | relative_url }}" hreflang="zh-CN">
+    <link rel="alternate" type="application/rss+xml" title="GameDev Tech Daily (English)" href="{{ '/feed-en.xml' | relative_url }}" hreflang="en">
 </head>
 <body>
     <header class="site-header">
@@ -22,7 +23,8 @@
             <a href="{{ '/' | relative_url }}" id="nav-home">Home</a>
             <a href="{{ '/search' | relative_url }}" id="nav-search">Search</a>
             <a href="{{ '/categories' | relative_url }}" id="nav-categories">Categories</a>
-            <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+            <a href="{{ '/feed.xml' | relative_url }}" id="nav-rss-zh" title="RSS 中文">📡 中文</a>
+            <a href="{{ '/feed-en.xml' | relative_url }}" id="nav-rss-en" title="RSS English">📡 EN</a>
             
             <!-- Language Switcher -->
             <select id="lang-select" onchange="applyTranslations(this.value)" style="margin-left: auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer;">
@@ -78,6 +80,12 @@
             if (navCategories) navCategories.textContent = '分类';
             if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} 游戏技术策划日报 | 每日自动更新';
             document.title = '游戏技术策划日报';
+            
+            // Show/hide RSS links
+            const rssZh = document.getElementById('nav-rss-zh');
+            const rssEn = document.getElementById('nav-rss-en');
+            if (rssZh) rssZh.style.display = 'inline';
+            if (rssEn) rssEn.style.display = 'none';
         } else {
             if (siteTitle) siteTitle.textContent = 'GameDev Tech Daily';
             if (siteDesc) siteDesc.textContent = 'Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains';
@@ -86,6 +94,12 @@
             if (navCategories) navCategories.textContent = 'Categories';
             if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} GameDev Tech Daily | Daily Auto Update';
             document.title = 'GameDev Tech Daily';
+            
+            // Show/hide RSS links
+            const rssZh = document.getElementById('nav-rss-zh');
+            const rssEn = document.getElementById('nav-rss-en');
+            if (rssZh) rssZh.style.display = 'none';
+            if (rssEn) rssEn.style.display = 'inline';
         }
         
         localStorage.setItem('preferred-lang', lang);

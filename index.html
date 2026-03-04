@@ -68,6 +68,11 @@ title: Home
     <div class="date-info">
       <h2 class="daily-title">{{ zh_post.title }}</h2>
       <p class="date-subtitle">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
+      <div class="rss-subscribe" style="margin-top: 10px;">
+        <a href="{{ '/feed.xml' | relative_url }}" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f39c12; color: white; border-radius: 4px; text-decoration: none; font-size: 0.9rem;">
+          📡 订阅 RSS
+        </a>
+      </div>
     </div>
   </section>
 
@@ -104,6 +109,11 @@ title: Home
     <div class="date-info">
       <h2 class="daily-title">{{ en_post.title }}</h2>
       <p class="date-subtitle">{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}</p>
+      <div class="rss-subscribe" style="margin-top: 10px;">
+        <a href="{{ '/feed-en.xml' | relative_url }}" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #f39c12; color: white; border-radius: 4px; text-decoration: none; font-size: 0.9rem;">
+          📡 Subscribe RSS
+        </a>
+      </div>
     </div>
   </section>
 
