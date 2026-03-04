@@ -45,22 +45,18 @@
 
 ### 2.2 目录结构
 ```
-/root/.openclaw/workspace/gamedev-tech-daily/
+gamedev-tech-daily/
 ├── _config.yml              # Jekyll 配置
 ├── _layouts/
 │   ├── default.html         # 主布局（含语言切换器）
 │   └── post.html            # 文章布局
 ├── _posts/
-│   ├── 2026-03-04-daily.md       # 中文版
-│   └── 2026-03-04-daily-en.md    # 英文版（独立 permalink）
+│   ├── YYYY-MM-DD-daily.md       # 中文版
+│   └── YYYY-MM-DD-daily-en.md    # 英文版
 ├── assets/
 │   └── css/style.css        # 自定义样式
 ├── index.html               # 首页（双语切换逻辑）
-└── ...
-
-/root/.openclaw/workspace/scripts/
-├── daily-report-full.sh     # 定时任务入口
-├── daily-report-gen.py      # Python 生成器
+├── search.html              # 搜索页面
 └── ...
 ```
 
@@ -109,7 +105,7 @@
 ### 3.2 Cron 配置
 ```bash
 # 工作日上午 11:00 (GMT+8) 执行
-0 3 * * 1-5 /root/.openclaw/workspace/scripts/daily-report-full.sh
+0 3 * * 1-5 [脚本路径]
 ```
 
 ---
@@ -150,11 +146,11 @@ en-content: 显示英文文章 (en_post.content)
 
 ## 5. 配置信息
 
-### 5.1 API Keys
-| 服务 | Key 位置 | 用途 |
-|------|----------|------|
-| Brave Search | `TOOLS.md` | 文章搜索 |
-| GitHub Token | 脚本内嵌 | 代码推送 |
+### 5.1 API 服务
+| 服务 | 用途 | 配置位置 |
+|------|------|----------|
+| Brave Search | 文章搜索 | 环境变量 |
+| GitHub Token | 代码推送 | 环境变量 |
 
 ### 5.2 搜索主题配置
 ```python
@@ -177,11 +173,8 @@ SEARCH_TOPICS = {
 ## 6. 运维监控
 
 ### 6.1 日志文件
-```
-/root/.openclaw/workspace/logs/
-├── daily-report.log         # 日报生成日志
-└── feishu-message-ready.txt # 飞书消息草稿
-```
+- 日报生成日志
+- 飞书消息草稿
 
 ### 6.2 健康检查
 - **GitHub Pages**: 自动部署，构建状态邮件通知
@@ -207,7 +200,7 @@ SEARCH_TOPICS = {
 ### 7.2 技术改进
 - [ ] 本地 LLM 接入（节约 API Token）
 - [ ] RSS 订阅功能完善
-- [ ] 搜索功能优化（当前为静态页面）
+- [ ] 搜索功能优化（已完成：标题/摘要/Tag 搜索）
 
 ### 7.3 内容扩展
 - [ ] 周末精选周刊模式
@@ -223,7 +216,7 @@ SEARCH_TOPICS = {
 | 2026-03-01 | v0.1 | 项目启动，基础网站搭建 |
 | 2026-03-02 | v0.5 | 自动化脚本上线 |
 | 2026-03-03 | v0.8 | 双语版本实现 |
-| 2026-03-04 | v1.0 | 语言严格分离，导航栏切换器 |
+| 2026-03-04 | v1.0 | 语言严格分离，导航栏切换器，搜索功能优化 |
 
 ---
 
@@ -232,11 +225,9 @@ SEARCH_TOPICS = {
 ### A. 相关链接
 - 网站: https://sionsychen.github.io/gamedev-tech-daily
 - 源码: https://github.com/sionsychen/gamedev-tech-daily
-- 本地路径: `/root/.openclaw/workspace/gamedev-tech-daily/`
 
 ### B. 联系方式
 - 技术负责人: 小黑 (OpenClaw)
-- 飞书 OpenID: `ou_6bf225e82b5c7a7e1872429fee274e3b`
 
 ---
 
