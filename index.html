@@ -3,29 +3,35 @@ layout: default
 title: Home
 ---
 
-{% assign today = site.time | date: '%Y-%m-%d' %}
+{% comment %}
+找到最新文章 - 分别获取中文和英文
+{% endcomment %}
 
-<!-- 找到今天的中文文章 -->
 {% assign zh_post = nil %}
-{% for p in site.posts %}
-  {% unless p.path contains '-en' %}
-    {% assign post_date = p.date | date: '%Y-%m-%d' %}
-    {% if zh_post == nil %}
-      {% assign zh_post = p %}
-    {% endif %}
-  {% endunless %}
+{% assign en_post = nil %}
+{% assign latest_date = nil %}
+
+{% for post in site.posts %}
+  {% assign post_date = post.date | date: '%Y-%m-%d' %}
+  {% if latest_date == nil or post_date > latest_date %}
+    {% assign latest_date = post_date %}
+  {% endif %}
 {% endfor %}
 
-<!-- 找到今天的英文文章 -->
-{% assign en_post = nil %}
-{% for p in site.posts %}
-  {% if p.path contains '-en' %}
-    {% assign post_date = p.date | date: '%Y-%m-%d' %}
-    {% if en_post == nil %}
-      {% assign en_post = p %}
+{% for post in site.posts %}
+  {% assign post_date = post.date | date: '%Y-%m-%d' %}
+  {% if post_date == latest_date %}
+    {% if post.path contains '-en' %}
+      {% assign en_post = post %}
+    {% else %}
+      {% assign zh_post = post %}
     {% endif %}
   {% endif %}
 {% endfor %}
+
+{% if zh_post == nil %}
+  {% assign zh_post = site.posts.first %}
+{% endif %}
 
 {% assign year = zh_post.date | date: '%Y' %}
 {% assign month = zh_post.date | date: '%m' %}
@@ -45,149 +51,133 @@ title: Home
 
 <!-- 中文版内容 -->
 <div id="zh-content" class="lang-content" data-lang="zh">
-<section class="hero-section">
+  <section class="hero-section">
     <div class="date-info">
-        <h2 class="daily-title" id="daily-title-zh">{{ zh_post.title }}</h2>
-        <p class="date-subtitle" id="date-subtitle-zh">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
+      <h2 class="daily-title">{{ zh_post.title }}</h2>
+      <p class="date-subtitle">{{ year }}年{{ month }}月{{ day }}日 {{ weekdays_zh[weekday_num] }}</p>
     </div>
-</section>
+  </section>
 
-<section class="headlines-section">
+  <section class="headlines-section">
     <h3 class="section-title">今日头条</h3>
-    
     <div class="articles-list">
-        {{ zh_post.content }}
+      {{ zh_post.content }}
     </div>
-</section>
+  </section>
 
-<section class="archive-section">
+  <section class="archive-section">
     <h3 class="section-title">历史日报</h3>
     <div class="archive-list">
-        {% for post in site.posts %}
+      {% assign zh_count = 0 %}
+      {% for post in site.posts %}
         {% unless post.path contains '-en' %}
-        {% if forloop.index > 1 and forloop.index <= 11 %}
-        <div class="archive-item">
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
-        </div>
-        {% endif %}
+          {% if zh_count < 10 %}
+            <div class="archive-item">
+              <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
+            </div>
+            {% assign zh_count = zh_count | plus: 1 %}
+          {% endif %}
         {% endunless %}
-        {% endfor %}
+      {% endfor %}
     </div>
-    {% if site.posts.size > 11 %}
     <a href="{{ '/archive' | relative_url }}" class="more-link">查看更多 →</a>
-    {% endif %}
-</section>
+  </section>
 </div>
 
 <!-- 英文版内容 -->
 <div id="en-content" class="lang-content" data-lang="en" style="display:none">
-<section class="hero-section">
+  <section class="hero-section">
     <div class="date-info">
-        <h2 class="daily-title" id="daily-title-en">{{ en_title }}</h2>
-        <p class="date-subtitle" id="date-subtitle-en">{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}</p>
+      <h2 class="daily-title">{{ en_title }}</h2>
+      <p class="date-subtitle">{{ month_name_en }} {{ day }}, {{ year }} · {{ weekdays_en[weekday_num] }}</p>
     </div>
-</section>
+  </section>
 
-<section class="headlines-section">
+  <section class="headlines-section">
     <h3 class="section-title">Today's Headlines</h3>
-    
-    <div class="articles-list" id="en-articles-list">
-        {% if en_post %}
-            {{ en_post.content }}
-        {% else %}
-            <p>English version not available yet. Please check back later.</p>
-            <p><a href="{{ zh_post.url | relative_url }}">View Chinese version →</a></p>
-        {% endif %}
+    <div class="articles-list">
+      {% if en_post %}
+        {{ en_post.content }}
+      {% else %}
+        <p>English version not available yet. Please check back later.</p>
+        <p><a href="{{ zh_post.url | relative_url }}">View Chinese version →</a></p>
+      {% endif %}
     </div>
-</section>
+  </section>
 
-<section class="archive-section">
+  <section class="archive-section">
     <h3 class="section-title">Archive</h3>
     <div class="archive-list">
-        {% for post in site.posts %}
-        {% unless post.path contains '-en' %}
-        {% assign post_en = nil %}
-        {% for p in site.posts %}
-          {% if p.path contains '-en' and p.date == post.date %}
-            {% assign post_en = p %}
+      {% assign en_count = 0 %}
+      {% for post in site.posts %}
+        {% if post.path contains '-en' %}
+          {% if en_count < 10 %}
+            <div class="archive-item">
+              <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
+            </div>
+            {% assign en_count = en_count | plus: 1 %}
           {% endif %}
-        {% endfor %}
-        {% if forloop.index > 1 and forloop.index <= 11 %}
-        <div class="archive-item">
-            {% if post_en %}
-                <a href="{{ post_en.url | relative_url }}">{{ post_en.title }}</a>
-            {% else %}
-                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            {% endif %}
-            <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
-        </div>
         {% endif %}
-        {% endunless %}
-        {% endfor %}
+      {% endfor %}
     </div>
-    {% if site.posts.size > 11 %}
     <a href="{{ '/archive' | relative_url }}" class="more-link">View More →</a>
-    {% endif %}
-</section>
+  </section>
 </div>
 
 <script>
-// Language switcher - Fixed version
 (function() {
-    function applyLanguage(lang) {
-        const zhContent = document.getElementById('zh-content');
-        const enContent = document.getElementById('en-content');
-        
-        if (!zhContent || !enContent) return;
-        
-        if (lang === 'zh') {
-            zhContent.style.display = 'block';
-            enContent.style.display = 'none';
-            document.documentElement.lang = 'zh-CN';
-        } else {
-            zhContent.style.display = 'none';
-            enContent.style.display = 'block';
-            document.documentElement.lang = 'en';
-        }
-        
-        // Update site title
-        const siteTitle = document.querySelector('.site-title a');
-        const siteDesc = document.querySelector('.site-description');
-        
-        if (siteTitle) {
-            siteTitle.textContent = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
-        }
-        if (siteDesc) {
-            siteDesc.textContent = lang === 'zh' 
-                ? "每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链"
-                : "Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains";
-        }
-        
-        document.title = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
-        
-        // Update footer
-        const footerText = document.querySelector('.site-footer p');
-        if (footerText) {
-            const year = new Date().getFullYear();
-            footerText.innerHTML = `© ${year} ${lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily"} | ${lang === 'zh' ? '每日自动更新' : 'Daily Auto Update'}`;
-        }
-        
-        localStorage.setItem('preferred-lang', lang);
+  function applyLanguage(lang) {
+    const zhContent = document.getElementById('zh-content');
+    const enContent = document.getElementById('en-content');
+    
+    if (!zhContent || !enContent) return;
+    
+    if (lang === 'zh') {
+      zhContent.style.display = 'block';
+      enContent.style.display = 'none';
+      document.documentElement.lang = 'zh-CN';
+    } else {
+      zhContent.style.display = 'none';
+      enContent.style.display = 'block';
+      document.documentElement.lang = 'en';
     }
     
-    // Expose to global scope for dropdown
-    window.applyTranslations = applyLanguage;
+    // Update site title
+    const siteTitle = document.querySelector('.site-title a');
+    const siteDesc = document.querySelector('.site-description');
     
-    // Apply on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const stored = localStorage.getItem('preferred-lang');
-        if (stored) {
-            applyLanguage(stored);
-            // Update select element if exists
-            const langSelect = document.getElementById('lang-select');
-            if (langSelect) langSelect.value = stored;
-        }
-    });
+    if (siteTitle) {
+      siteTitle.textContent = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
+    }
+    if (siteDesc) {
+      siteDesc.textContent = lang === 'zh' 
+        ? "每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链"
+        : "Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains";
+    }
+    
+    document.title = lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily";
+    
+    // Update footer
+    const footerText = document.querySelector('.site-footer p');
+    if (footerText) {
+      const year = new Date().getFullYear();
+      footerText.innerHTML = `© ${year} ${lang === 'zh' ? "游戏技术策划日报" : "GameDev Tech Daily"} | ${lang === 'zh' ? '每日自动更新' : 'Daily Auto Update'}`;
+    }
+    
+    localStorage.setItem('preferred-lang', lang);
+  }
+  
+  window.applyTranslations = applyLanguage;
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const stored = localStorage.getItem('preferred-lang');
+    if (stored) {
+      applyLanguage(stored);
+      const langSelect = document.getElementById('lang-select');
+      if (langSelect) langSelect.value = stored;
+    }
+  });
 })();
 </script>

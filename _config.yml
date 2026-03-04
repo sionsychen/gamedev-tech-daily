@@ -10,7 +10,6 @@ lang: en
 # Build settings
 markdown: kramdown
 highlighter: rouge
-permalink: /:year/:month/:day/:title/
 
 # Plugins
 plugins:
@@ -21,7 +20,6 @@ plugins:
 collections:
   posts:
     output: true
-    permalink: /:year/:month/:day/:title/
 
 # Default values
 defaults:
