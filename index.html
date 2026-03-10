@@ -3,9 +3,6 @@ layout: default
 title: Home
 ---
 
-{% assign today = site.time | date: '%Y-%m-%d' %}
-
-<!-- 获取最新英文文章 -->
 {% assign latest_post = site.posts.first %}
 {% for post in site.posts %}
   {% if post.path contains '-en' or post.lang == 'en' %}
@@ -14,41 +11,81 @@ title: Home
   {% endif %}
 {% endfor %}
 
-{% assign year = latest_post.date | date: '%Y' %}
-{% assign month = latest_post.date | date: '%m' %}
-{% assign day = latest_post.date | date: '%d' %}
-{% assign weekday = latest_post.date | date: '%A' %}
-{% assign month_name = latest_post.date | date: '%B' %}
-
-<section class="hero-section">
-  <div class="date-info">
-    <h2 class="daily-title">{{ latest_post.title }}</h2>
-    <p class="date-subtitle">{{ month_name }} {{ day }}, {{ year }} · {{ weekday }}</p>
+<!-- Hero Section - Typography Dominant -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <p class="hero-label">Daily Curated Intelligence</p>
+      <h1 class="hero-title">
+        Game Development
+        <span class="highlight">Technical Insights</span>
+      </h1>
+      <p class="hero-description">
+        Essential reads on UE5, Unity, open-world pipelines, and game development tools. 
+        Curated daily for technical designers and developers.
+      </p>
+      
+      {% if latest_post %}
+      <div class="hero-meta">
+        <span class="update-badge">
+          <span class="pulse"></span>
+          Updated {{ latest_post.date | date: "%b %d" }}
+        </span>
+        <a href="#today" class="scroll-link">See today's articles &darr;</a>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </section>
 
-<section class="headlines-section">
-  <h3 class="section-title">Today's Headlines</h3>
-  <div class="articles-list">
-    {{ latest_post.content }}
+{% if latest_post %}
+<!-- Today's Headlines -->
+<section id="today" class="today-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Today's Headlines</h2>
+      <span class="section-date">{{ latest_post.date | date: "%A, %B %d, %Y" }}</span>
+    </div>
+
+    <div class="articles-container">
+      {{ latest_post.content }}
+    </div>
   </div>
 </section>
 
-<section class="archive-section">
-  <h3 class="section-title">Archive</h3>
-  <div class="archive-list">
-    {% assign count = 0 %}
-    {% for post in site.posts %}
-      {% if post.path contains '-en' or post.lang == 'en' %}
-        {% if count < 10 %}
-          <div class="archive-item">
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            <span class="archive-date">{{ post.date | date: "%m-%d" }}</span>
-          </div>
+<!-- Recent Archive -->
+<section class="archive-preview">
+  <div class="container">
+    <div class="section-header">
+      <h3 class="section-subtitle">Previous Issues</h3>
+      <a href="{{ '/archive' | relative_url }}" class="view-all">View all &rarr;</a>
+    </div>
+
+    <div class="archive-list-compact">
+      {% assign count = 0 %}
+      {% for post in site.posts %}
+        {% if post.path contains '-en' or post.lang == 'en' %}
+          {% if count > 0 and count < 6 %}
+          <a href="{{ post.url | relative_url }}" class="archive-item-compact">
+            <span class="archive-date-compact">{{ post.date | date: "%b %d" }}</span>
+            <span class="archive-title-compact">{{ post.title }}</span>
+            <svg class="archive-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+          {% endif %}
           {% assign count = count | plus: 1 %}
         {% endif %}
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
-  <a href="{{ '/archive' | relative_url }}" class="more-link">View More →</a>
 </section>
+{% else %}
+<!-- Empty State -->
+<section class="empty-state">
+  <div class="container">
+    <p class="empty-message">Coming Soon</p>
+    <p class="empty-subtitle">First daily digest will be published shortly.</p>
+  </div>
+</section>
+{% endif %}
