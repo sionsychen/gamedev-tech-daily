@@ -1,30 +1,30 @@
 ---
 layout: default
-title: 搜索
+title: Search
 ---
 
 <div class="search-page">
-  <h2 class="page-title">🔍 搜索文章</h2>
+  <h2 class="page-title">🔍 Search Articles</h2>
   
   <div class="search-box">
-    <input type="text" id="search-input" placeholder="输入关键词搜索..." class="search-input">
+    <input type="text" id="search-input" placeholder="Enter keywords..." class="search-input">
   </div>
   
   <div id="search-results" class="search-results">
-    <!-- 搜索结果将在这里显示 -->
+    <!-- Search results will be displayed here -->
   </div>
   
   <div id="all-posts" class="all-posts">
-    <h3>所有文章</h3>
+    <h3>All Posts</h3>
     <div class="post-list">
       {% for post in site.posts %}
-        {% unless post.path contains '-en' or post.lang == 'en' %}
+        {% if post.path contains '-en' or post.lang == 'en' %}
         <div class="post-item" data-title="{{ post.title | downcase }}" data-content="{{ post.content | strip_html | downcase }}">
           <a href="{{ post.url | relative_url }}" class="post-link">{{ post.title }}</a>
           <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
           <p class="post-excerpt">{{ post.content | strip_html | truncate: 100 }}</p>
         </div>
-        {% endunless %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     searchResults.style.display = 'block';
     allPosts.style.display = 'none';
     
-    let resultsHTML = '<h3>搜索结果</h3><div class="post-list">';
+    let resultsHTML = '<h3>Search Results</h3><div class="post-list">';
     let hasResults = false;
     
     postItems.forEach(function(item) {
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     if (!hasResults) {
-      resultsHTML += '<p class="no-results">没有找到匹配的文章</p>';
+      resultsHTML += '<p class="no-results">No matching articles found</p>';
     }
     
     resultsHTML += '</div>';

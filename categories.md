@@ -1,33 +1,33 @@
 ---
 layout: default
-title: 分类
+title: Categories
 ---
 
 <div class="categories-page">
-  <h2 class="page-title">📂 文章分类</h2>
+  <h2 class="page-title">📂 Categories</h2>
   
   <div class="category-cloud">
     {% assign all_tags = "" | split: "" %}
     {% for post in site.posts %}
-      {% unless post.path contains '-en' or post.lang == 'en' %}
+      {% if post.path contains '-en' or post.lang == 'en' %}
         {% assign content = post.content | downcase %}
         {% if content contains '#ue5' or content contains '#UE5' %}{% assign all_tags = all_tags | push: 'UE5' %}{% endif %}
         {% if content contains '#unity' or content contains '#Unity' %}{% assign all_tags = all_tags | push: 'Unity' %}{% endif %}
-        {% if content contains '#场景' %}{% assign all_tags = all_tags | push: '场景' %}{% endif %}
-        {% if content contains '#光照' or content contains '#lumen' %}{% assign all_tags = all_tags | push: '光照' %}{% endif %}
-        {% if content contains '#动画' %}{% assign all_tags = all_tags | push: '动画' %}{% endif %}
-        {% if content contains '#资源' %}{% assign all_tags = all_tags | push: '资源' %}{% endif %}
-        {% if content contains '#独立游戏' %}{% assign all_tags = all_tags | push: '独立游戏' %}{% endif %}
-        {% if content contains '#技术' %}{% assign all_tags = all_tags | push: '技术' %}{% endif %}
-        {% if content contains '#工具' %}{% assign all_tags = all_tags | push: '工具' %}{% endif %}
-        {% if content contains '#行业' %}{% assign all_tags = all_tags | push: '行业' %}{% endif %}
-      {% endunless %}
+        {% if content contains '#shaders' %}{% assign all_tags = all_tags | push: 'Shaders' %}{% endif %}
+        {% if content contains '#lighting' or content contains '#lumen' %}{% assign all_tags = all_tags | push: 'Lighting' %}{% endif %}
+        {% if content contains '#animation' %}{% assign all_tags = all_tags | push: 'Animation' %}{% endif %}
+        {% if content contains '#materials' %}{% assign all_tags = all_tags | push: 'Materials' %}{% endif %}
+        {% if content contains '#indie' %}{% assign all_tags = all_tags | push: 'Indie' %}{% endif %}
+        {% if content contains '#tech' %}{% assign all_tags = all_tags | push: 'Tech' %}{% endif %}
+        {% if content contains '#tools' %}{% assign all_tags = all_tags | push: 'Tools' %}{% endif %}
+        {% if content contains '#pipeline' %}{% assign all_tags = all_tags | push: 'Pipeline' %}{% endif %}
+      {% endif %}
     {% endfor %}
     
     {% assign unique_tags = all_tags | uniq | sort %}
     
     <div class="tags-container">
-      <button class="tag-btn active" data-tag="all">全部</button>
+      <button class="tag-btn active" data-tag="all">All</button>
       {% for tag in unique_tags %}
         <button class="tag-btn" data-tag="{{ tag }}">{{ tag }}</button>
       {% endfor %}
@@ -36,19 +36,19 @@ title: 分类
   
   <div class="posts-by-category">
     {% for post in site.posts %}
-      {% unless post.path contains '-en' or post.lang == 'en' %}
+      {% if post.path contains '-en' or post.lang == 'en' %}
         {% assign content = post.content | downcase %}
         {% assign tags = "" %}
         {% if content contains '#ue5' or content contains '#UE5' %}{% assign tags = tags | append: 'UE5 ' %}{% endif %}
         {% if content contains '#unity' or content contains '#Unity' %}{% assign tags = tags | append: 'Unity ' %}{% endif %}
-        {% if content contains '#场景' %}{% assign tags = tags | append: '场景 ' %}{% endif %}
-        {% if content contains '#光照' or content contains '#lumen' %}{% assign tags = tags | append: '光照 ' %}{% endif %}
-        {% if content contains '#动画' %}{% assign tags = tags | append: '动画 ' %}{% endif %}
-        {% if content contains '#资源' %}{% assign tags = tags | append: '资源 ' %}{% endif %}
-        {% if content contains '#独立游戏' %}{% assign tags = tags | append: '独立游戏 ' %}{% endif %}
-        {% if content contains '#技术' %}{% assign tags = tags | append: '技术 ' %}{% endif %}
-        {% if content contains '#工具' %}{% assign tags = tags | append: '工具 ' %}{% endif %}
-        {% if content contains '#行业' %}{% assign tags = tags | append: '行业 ' %}{% endif %}
+        {% if content contains '#shaders' %}{% assign tags = tags | append: 'Shaders ' %}{% endif %}
+        {% if content contains '#lighting' or content contains '#lumen' %}{% assign tags = tags | append: 'Lighting ' %}{% endif %}
+        {% if content contains '#animation' %}{% assign tags = tags | append: 'Animation ' %}{% endif %}
+        {% if content contains '#materials' %}{% assign tags = tags | append: 'Materials ' %}{% endif %}
+        {% if content contains '#indie' %}{% assign tags = tags | append: 'Indie ' %}{% endif %}
+        {% if content contains '#tech' %}{% assign tags = tags | append: 'Tech ' %}{% endif %}
+        {% if content contains '#tools' %}{% assign tags = tags | append: 'Tools ' %}{% endif %}
+        {% if content contains '#pipeline' %}{% assign tags = tags | append: 'Pipeline ' %}{% endif %}
         
         <div class="category-post" data-tags="{{ tags }} all">
           <a href="{{ post.url | relative_url }}" class="post-title">{{ post.title }}</a>
@@ -62,7 +62,7 @@ title: 分类
             {% endfor %}
           </div>
         </div>
-      {% endunless %}
+      {% endif %}
     {% endfor %}
   </div>
 </div>

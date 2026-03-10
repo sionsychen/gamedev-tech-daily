@@ -30,7 +30,7 @@ title: Search
 <script>
 // Extract tags from article content
 function extractTags(content) {
-    const tagRegex = /#([\u4e00-\u9fa5a-zA-Z]+)/g;
+    const tagRegex = /#([a-zA-Z]+)/g;
     const tags = [];
     let match;
     while ((match = tagRegex.exec(content)) !== null) {
