@@ -10,23 +10,17 @@
     <header class="site-header">
         <div class="container">
             <h1 class="site-title">
-                <a href="{{ '/' | relative_url }}" id="site-title-link">{{ site.title }}</a>
+                <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
             </h1>
-            <p class="site-description" id="site-desc">{{ site.description }}</p>
+            <p class="site-description">{{ site.description }}</p>
         </div>
     </header>
 
     <nav class="site-nav">
         <div class="container">
-            <a href="{{ '/' | relative_url }}" id="nav-home">Home</a>
-            <a href="{{ '/search' | relative_url }}" id="nav-search">Search</a>
-            <a href="{{ '/categories' | relative_url }}" id="nav-categories">Categories</a>
-            
-            <!-- Language Switcher -->
-            <select id="lang-select" onchange="applyTranslations(this.value)" style="margin-left: auto; padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer;">
-                <option value="zh">🇨🇳 中文</option>
-                <option value="en">🇺🇸 English</option>
-            </select>
+            <a href="{{ '/' | relative_url }}">Home</a>
+            <a href="{{ '/search' | relative_url }}">Search</a>
+            <a href="{{ '/categories' | relative_url }}">Categories</a>
         </div>
     </nav>
 
@@ -38,66 +32,8 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p id="footer-text">© {{ site.time | date: '%Y' }} {{ site.title }} | Daily Auto Update</p>
+            <p>© {{ site.time | date: '%Y' }} {{ site.title }} | Daily Auto Update</p>
         </div>
     </footer>
-
-    <script>
-    // Language switcher inline script
-    function applyTranslations(lang) {
-        const zhContent = document.getElementById('zh-content');
-        const enContent = document.getElementById('en-content');
-        
-        if (zhContent && enContent) {
-            if (lang === 'zh') {
-                zhContent.style.display = 'block';
-                enContent.style.display = 'none';
-                document.documentElement.lang = 'zh-CN';
-            } else {
-                zhContent.style.display = 'none';
-                enContent.style.display = 'block';
-                document.documentElement.lang = 'en';
-            }
-        }
-        
-        // Update site title
-        const siteTitle = document.getElementById('site-title-link');
-        const siteDesc = document.getElementById('site-desc');
-        const navHome = document.getElementById('nav-home');
-        const navSearch = document.getElementById('nav-search');
-        const navCategories = document.getElementById('nav-categories');
-        const footerText = document.getElementById('footer-text');
-        
-        if (lang === 'zh') {
-            if (siteTitle) siteTitle.textContent = '游戏技术策划日报';
-            if (siteDesc) siteDesc.textContent = '每日精选游戏开发技术文章 — 聚焦技术策划、UE5/Unity、开放世界与工具链';
-            if (navHome) navHome.textContent = '首页';
-            if (navSearch) navSearch.textContent = '搜索';
-            if (navCategories) navCategories.textContent = '分类';
-            if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} 游戏技术策划日报 | 每日自动更新';
-            document.title = '游戏技术策划日报';
-        } else {
-            if (siteTitle) siteTitle.textContent = 'GameDev Tech Daily';
-            if (siteDesc) siteDesc.textContent = 'Daily curated game development technical articles — Focus on Technical Design, UE5/Unity, Open World & Toolchains';
-            if (navHome) navHome.textContent = 'Home';
-            if (navSearch) navSearch.textContent = 'Search';
-            if (navCategories) navCategories.textContent = 'Categories';
-            if (footerText) footerText.innerHTML = '© {{ site.time | date: "%Y" }} GameDev Tech Daily | Daily Auto Update';
-            document.title = 'GameDev Tech Daily';
-        }
-        
-        localStorage.setItem('preferred-lang', lang);
-    }
-    
-    // Apply on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const stored = localStorage.getItem('preferred-lang');
-        if (stored) {
-            applyTranslations(stored);
-            const langSelect = document.getElementById('lang-select');
-            if (langSelect) langSelect.value = stored;
-        }
-    });
-    </script>
 </body>
 </html>

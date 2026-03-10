@@ -30,10 +30,10 @@ defaults:
 categories:
   - UE5
   - Unity
-  - 技术策划
-  - 开放世界
-  - 工具链
-  - 工业化
+  - Technical Design
+  - Open World
+  - Toolchains
+  - Industrialization
 
 # Exclude
 exclude:
