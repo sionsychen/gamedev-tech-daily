@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site.title }}</title>
+    <title>{{ page.title | default: site.title }}</title>
+    <meta name="description" content="{{ site.description }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
+    <!-- Header -->
     <header class="site-header">
         <div class="container">
-            <h1 class="site-title">
-                <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
-            </h1>
-            <p class="site-description">{{ site.description }}</p>
+            <div class="header-content">
+                <a href="{{ '/' | relative_url }}" class="logo">
+                    <span class="logo-icon">🎮</span>
+                    <div class="logo-text">
+                        <span class="logo-title">GameDev Tech</span>
+                        <span class="logo-subtitle">Daily</span>
+                    </div>
+                </a>
+                
+                <nav class="site-nav">
+                    <a href="{{ '/' | relative_url }}" class="nav-link {% if page.url == '/' %}active{% endif %}">Home</a>
+                    <a href="{{ '/archive' | relative_url }}" class="nav-link {% if page.url contains 'archive' %}active{% endif %}">Archive</a>
+                    <a href="{{ '/categories' | relative_url }}" class="nav-link {% if page.url contains 'categories' %}active{% endif %}">Categories</a>
+                    <a href="{{ '/search' | relative_url }}" class="nav-link {% if page.url contains 'search' %}active{% endif %}">Search</a>
+                </nav>
+            </div>
         </div>
     </header>
 
-    <nav class="site-nav">
-        <div class="container">
-            <a href="{{ '/' | relative_url }}">Home</a>
-            <a href="{{ '/search' | relative_url }}">Search</a>
-            <a href="{{ '/categories' | relative_url }}">Categories</a>
-        </div>
-    </nav>
-
+    <!-- Main Content -->
     <main class="main-content">
-        <div class="container">
-            {{ content }}
-        </div>
+        {{ content }}
     </main>
 
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="container">
-            <p>© {{ site.time | date: '%Y' }} {{ site.title }} | Daily Auto Update</p>
+            <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }} | Curated for game developers</p>
         </div>
     </footer>
 </body>
