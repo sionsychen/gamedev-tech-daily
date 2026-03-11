@@ -3,27 +3,35 @@ layout: default
 title: Search
 ---
 
-<section class="headlines-section">
-    <h3 class="section-title" id="search-title">Search</h3>
-    
-    <div class="search-filters" style="margin-bottom: 1rem;">
-        <label style="margin-right: 1rem; cursor: pointer;">
-            <input type="checkbox" id="search-title" checked> Title
-        </label>
-        <label style="margin-right: 1rem; cursor: pointer;">
-            <input type="checkbox" id="search-excerpt" checked> Excerpt
-        </label>
-        <label style="margin-right: 1rem; cursor: pointer;">
-            <input type="checkbox" id="search-tags" checked> Tags
-        </label>
-    </div>
-    
-    <div class="search-box" style="position: relative;">
-        <input type="text" id="search-input" placeholder="Search articles, tags, or keywords..." autocomplete="off" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem;">
-    </div>
-    
-    <div id="search-results" class="search-results" style="margin-top: 1.5rem;">
-        <p style="color: #999;">Enter keywords to start searching...</p>
+<section class="today-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Search</h2>
+        </div>
+        
+        <div class="search-filters" style="margin-bottom: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                <input type="checkbox" id="filter-title" checked> 
+                <span>Title</span>
+            </label>
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                <input type="checkbox" id="filter-excerpt" checked> 
+                <span>Excerpt</span>
+            </label>
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
+                <input type="checkbox" id="filter-tags" checked> 
+                <span>Tags</span>
+            </label>
+        </div>
+        
+        <div class="search-box" style="position: relative;">
+            <input type="text" id="search-input" placeholder="Search articles, tags, or keywords..." autocomplete="off" 
+                   style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; background: var(--bg-secondary); color: var(--text-primary);">
+        </div>
+        
+        <div id="search-results" style="margin-top: 1.5rem;">
+            <p style="color: var(--text-muted);">Enter keywords to start searching...</p>
+        </div>
     </div>
 </section>
 
@@ -68,15 +76,12 @@ const searchData = [
 
 const searchInput = document.getElementById('search-input');
 const searchResults = document.getElementById('search-results');
-const searchTitle = document.getElementById('search-title');
-const searchExcerpt = document.getElementById('search-excerpt');
-const searchTags = document.getElementById('search-tags');
 
 function getActiveFilters() {
     return {
-        title: document.querySelector('input#search-title[type="checkbox"]')?.checked ?? true,
-        excerpt: document.querySelector('input#search-excerpt[type="checkbox"]')?.checked ?? true,
-        tags: document.querySelector('input#search-tags[type="checkbox"]')?.checked ?? true
+        title: document.querySelector('input#filter-title[type="checkbox"]')?.checked ?? true,
+        excerpt: document.querySelector('input#filter-excerpt[type="checkbox"]')?.checked ?? true,
+        tags: document.querySelector('input#filter-tags[type="checkbox"]')?.checked ?? true
     };
 }
 
@@ -136,11 +141,11 @@ document.querySelectorAll('.search-filters input').forEach(checkbox => {
 
 function displayResults(results, query) {
     if (results.length === 0) {
-        searchResults.innerHTML = '<p>No articles found</p>';
+        searchResults.innerHTML = '<p style="color: var(--text-muted);">No articles found</p>';
         return;
     }
     
-    let html = `<p style="margin-bottom: 1rem; color: #666;">
+    let html = `<p style="margin-bottom: 1rem; color: var(--text-secondary);">
         Found <strong>${results.length}</strong> article(s)
         ${results.some(r => r.matches.tags.length > 0) ? ' • Tag matching enabled' : ''}
     </p>`;
@@ -148,14 +153,14 @@ function displayResults(results, query) {
     results.forEach(item => {
         // Build match indicators
         const indicators = [];
-        if (item.matches.title) indicators.push('<span style="color: #e74c3c; font-size: 0.8rem;">📌 Title</span>');
-        if (item.matches.tags.length > 0) indicators.push(`<span style="color: #3498db; font-size: 0.8rem;">🏷️ ${item.matches.tags.length} tag(s)</span>`);
-        if (item.matches.excerpt) indicators.push('<span style="color: #27ae60; font-size: 0.8rem;">📝 Excerpt</span>');
+        if (item.matches.title) indicators.push('<span style="color: var(--accent); font-size: 0.8rem;">📌 Title</span>');
+        if (item.matches.tags.length > 0) indicators.push(`<span style="color: var(--accent-light); font-size: 0.8rem;">🏷️ ${item.matches.tags.length} tag(s)</span>`);
+        if (item.matches.excerpt) indicators.push('<span style="color: var(--text-muted); font-size: 0.8rem;">📝 Excerpt</span>');
         
         // Highlight tags
         const tagDisplay = item.tags.slice(0, 5).map(tag => {
             const isMatched = item.matches.tags.includes(tag);
-            return `<span style="display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 12px; font-size: 0.75rem; ${isMatched ? 'background: #3498db; color: white;' : 'background: #ecf0f1; color: #666;'}">#${tag}</span>`;
+            return `<span style="display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 12px; font-size: 0.75rem; ${isMatched ? 'background: var(--accent); color: white;' : 'background: var(--bg-tertiary); color: var(--text-muted);'}">#${tag}</span>`;
         }).join('');
         
         // Get excerpt with highlighted query
@@ -172,17 +177,17 @@ function displayResults(results, query) {
         }
         
         html += `
-            <div class="search-result-item" style="padding: 1rem; margin-bottom: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${item.lang === 'en' ? '#3498db' : '#e74c3c'};">
+            <div class="article-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <a href="${item.url}" style="font-weight: 600; font-size: 1.1rem; color: #2c3e50; text-decoration: none;">
+                    <a href="${item.url}" style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary); text-decoration: none;">
                         ${highlight(item.title, query)}
                     </a>
-                    <span style="color: #999; font-size: 0.85rem; white-space: nowrap;">${item.date} ${item.lang === 'en' ? '🇺🇸' : '🇨🇳'}</span>
+                    <span style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">${item.date}</span>
                 </div>
                 
-                <div style="margin-bottom: 0.5rem;">${indicators.join(' <span style="color: #ddd;">|</span> ')}</div>
+                <div style="margin-bottom: 0.5rem;">${indicators.join(' <span style="color: var(--border);">|</span> ')}</div>
                 
-                <div style="font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 0.5rem;">
+                <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.5rem;">
                     ${item.matches.excerpt ? highlight(excerptText, query) : excerptText.substring(0, 150) + '...'}
                 </div>
                 
@@ -197,7 +202,7 @@ function displayResults(results, query) {
 function highlight(text, query) {
     if (!query) return text;
     const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-    return text.replace(regex, '<mark style="background: #fff3cd; padding: 1px 2px; border-radius: 2px;">$1</mark>');
+    return text.replace(regex, '<mark style="background: rgba(245, 158, 11, 0.3); padding: 1px 2px; border-radius: 2px; color: var(--text-primary);">$1</mark>');
 }
 
 function escapeRegex(string) {
