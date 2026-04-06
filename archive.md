@@ -4,7 +4,7 @@ title: Archive
 ---
 
 <section class="archive-page">
-  <h2 class="page-title">📚 Archive</h2>
+  <h2 class="page-title" data-i18n="archive.title">📚 Archive</h2>
   
   <div class="archive-list-full">
     {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
@@ -22,9 +22,35 @@ title: Archive
   </div>
   
   <div class="back-link-container">
-    <a href="{{ '/' | relative_url }}" class="back-link">← Back to Home</a>
+    <a href="{{ '/' | relative_url }}" class="back-link" data-i18n="archive.backHome">← Back to Home</a>
   </div>
 </section>
+
+<script>
+// Page-specific i18n for archive page
+(function() {
+  const pageI18n = {
+    en: {
+      'archive.title': '📚 Archive',
+      'archive.backHome': '← Back to Home'
+    },
+    zh: {
+      'archive.title': '📚 文章归档',
+      'archive.backHome': '← 返回首页'
+    }
+  };
+
+  // Register page-specific language handler
+  window.onLanguageChange = function(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (pageI18n[lang] && pageI18n[lang][key]) {
+        el.textContent = pageI18n[lang][key];
+      }
+    });
+  };
+})();
+</script>
 
 <style>
 .archive-page {

@@ -6,31 +6,31 @@ title: Search
 <section class="today-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Search</h2>
+            <h2 class="section-title" data-i18n="search.title">Search</h2>
         </div>
         
         <div class="search-filters" style="margin-bottom: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
             <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
                 <input type="checkbox" id="filter-title" checked> 
-                <span>Title</span>
+                <span data-i18n="search.filterTitle">Title</span>
             </label>
             <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
                 <input type="checkbox" id="filter-excerpt" checked> 
-                <span>Excerpt</span>
+                <span data-i18n="search.filterExcerpt">Excerpt</span>
             </label>
             <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
                 <input type="checkbox" id="filter-tags" checked> 
-                <span>Tags</span>
+                <span data-i18n="search.filterTags">Tags</span>
             </label>
         </div>
         
         <div class="search-box" style="position: relative;">
-            <input type="text" id="search-input" placeholder="Search articles, tags, or keywords..." autocomplete="off" 
+            <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" placeholder="Search articles, tags, or keywords..." autocomplete="off" 
                    style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; background: var(--bg-secondary); color: var(--text-primary);">
         </div>
         
         <div id="search-results" style="margin-top: 1.5rem;">
-            <p style="color: var(--text-muted);">Enter keywords to start searching...</p>
+            <p style="color: var(--text-muted);" data-i18n="search.hint">Enter keywords to start searching...</p>
         </div>
     </div>
 </section>
@@ -54,6 +54,44 @@ function extractExcerpt(content) {
     // Get first 200 chars
     return text.substring(0, 200) + (text.length > 200 ? '...' : '');
 }
+
+// Page-specific i18n for search page
+(function() {
+  const pageI18n = {
+    en: {
+      'search.title': 'Search',
+      'search.filterTitle': 'Title',
+      'search.filterExcerpt': 'Excerpt',
+      'search.filterTags': 'Tags',
+      'search.placeholder': 'Search articles, tags, or keywords...',
+      'search.hint': 'Enter keywords to start searching...'
+    },
+    zh: {
+      'search.title': '搜索',
+      'search.filterTitle': '标题',
+      'search.filterExcerpt': '摘要',
+      'search.filterTags': '标签',
+      'search.placeholder': '搜索文章、标签或关键词...',
+      'search.hint': '输入关键词开始搜索...'
+    }
+  };
+
+  // Register page-specific language handler
+  window.onLanguageChange = function(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (pageI18n[lang] && pageI18n[lang][key]) {
+        el.textContent = pageI18n[lang][key];
+      }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      if (pageI18n[lang] && pageI18n[lang][key]) {
+        el.placeholder = pageI18n[lang][key];
+      }
+    });
+  };
+})();
 
 // Search index data
 const searchData = [
@@ -88,9 +126,11 @@ function getActiveFilters() {
 searchInput.addEventListener('input', function() {
     const query = this.value.toLowerCase().trim();
     const filters = getActiveFilters();
+    const currentLang = localStorage.getItem('site-language') || 'en';
     
     if (query.length < 2) {
-        searchResults.innerHTML = '<p style="color: #999;">Enter keywords to start searching...</p>';
+        const hintText = currentLang === 'zh' ? '输入关键词开始搜索...' : 'Enter keywords to start searching...';
+        searchResults.innerHTML = `<p style="color: #999;">${hintText}</p>`;
         return;
     }
     
@@ -140,22 +180,32 @@ document.querySelectorAll('.search-filters input').forEach(checkbox => {
 });
 
 function displayResults(results, query) {
+    const currentLang = localStorage.getItem('site-language') || 'en';
+    
     if (results.length === 0) {
-        searchResults.innerHTML = '<p style="color: var(--text-muted);">No articles found</p>';
+        const noResultsText = currentLang === 'zh' ? '未找到相关文章' : 'No articles found';
+        searchResults.innerHTML = `<p style="color: var(--text-muted);">${noResultsText}</p>`;
         return;
     }
     
+    const foundText = currentLang === 'zh' ? '找到' : 'Found';
+    const articlesText = currentLang === 'zh' ? '篇文章' : 'article(s)';
+    const tagMatchText = currentLang === 'zh' ? '• 标签匹配已启用' : '• Tag matching enabled';
+    
     let html = `<p style="margin-bottom: 1rem; color: var(--text-secondary);">
-        Found <strong>${results.length}</strong> article(s)
-        ${results.some(r => r.matches.tags.length > 0) ? ' • Tag matching enabled' : ''}
+        ${foundText} <strong>${results.length}</strong> ${articlesText}
+        ${results.some(r => r.matches.tags.length > 0) ? ` ${tagMatchText}` : ''}
     </p>`;
     
     results.forEach(item => {
         // Build match indicators
         const indicators = [];
-        if (item.matches.title) indicators.push('<span style="color: var(--accent); font-size: 0.8rem;">📌 Title</span>');
-        if (item.matches.tags.length > 0) indicators.push(`<span style="color: var(--accent-light); font-size: 0.8rem;">🏷️ ${item.matches.tags.length} tag(s)</span>`);
-        if (item.matches.excerpt) indicators.push('<span style="color: var(--text-muted); font-size: 0.8rem;">📝 Excerpt</span>');
+        const titleLabel = currentLang === 'zh' ? '📌 标题' : '📌 Title';
+        const tagLabel = currentLang === 'zh' ? `🏷️ ${item.matches.tags.length} 个标签` : `🏷️ ${item.matches.tags.length} tag(s)`;
+        const excerptLabel = currentLang === 'zh' ? '📝 摘要' : '📝 Excerpt';
+        if (item.matches.title) indicators.push(`<span style="color: var(--accent); font-size: 0.8rem;">${titleLabel}</span>`);
+        if (item.matches.tags.length > 0) indicators.push(`<span style="color: var(--accent-light); font-size: 0.8rem;">${tagLabel}</span>`);
+        if (item.matches.excerpt) indicators.push(`<span style="color: var(--text-muted); font-size: 0.8rem;">${excerptLabel}</span>`);
         
         // Highlight tags
         const tagDisplay = item.tags.slice(0, 5).map(tag => {

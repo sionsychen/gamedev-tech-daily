@@ -4,7 +4,7 @@ title: Categories
 ---
 
 <div class="categories-page">
-  <h2 class="page-title">📂 Categories</h2>
+  <h2 class="page-title" data-i18n="categories.title">📂 Categories</h2>
   
   <div class="category-cloud">
     {% assign all_tags = "" | split: "" %}
@@ -27,7 +27,7 @@ title: Categories
     {% assign unique_tags = all_tags | uniq | sort %}
     
     <div class="tags-container">
-      <button class="tag-btn active" data-tag="all">All</button>
+      <button class="tag-btn active" data-tag="all" data-i18n="categories.all">All</button>
       {% for tag in unique_tags %}
         <button class="tag-btn" data-tag="{{ tag }}">{{ tag }}</button>
       {% endfor %}
@@ -68,6 +68,30 @@ title: Categories
 </div>
 
 <script>
+// Page-specific i18n for categories page
+(function() {
+  const pageI18n = {
+    en: {
+      'categories.title': '📂 Categories',
+      'categories.all': 'All'
+    },
+    zh: {
+      'categories.title': '📂 文章分类',
+      'categories.all': '全部'
+    }
+  };
+
+  // Register page-specific language handler
+  window.onLanguageChange = function(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (pageI18n[lang] && pageI18n[lang][key]) {
+        el.textContent = pageI18n[lang][key];
+      }
+    });
+  };
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
   const tagBtns = document.querySelectorAll('.tag-btn');
   const posts = document.querySelectorAll('.category-post');
