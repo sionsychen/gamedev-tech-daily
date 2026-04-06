@@ -39,20 +39,6 @@ title: Home
 </section>
 
 {% if latest_post %}
-<!-- Today's Headlines -->
-<section id="today" class="today-section">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Today's Headlines</h2>
-      <span class="section-date">{{ latest_post.date | date: "%A, %B %d, %Y" }}</span>
-    </div>
-
-    <div class="articles-container">
-      {{ latest_post.content }}
-    </div>
-  </div>
-</section>
-
 <!-- Recent Archive -->
 <section class="archive-preview">
   <div class="container">
