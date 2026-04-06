@@ -104,15 +104,16 @@ document.addEventListener('DOMContentLoaded', function() {
 .page-title {
   text-align: center;
   margin-bottom: 2rem;
-  color: var(--accent-color);
+  color: var(--accent);
+  font-size: 1.8rem;
 }
 
 .category-cloud {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
 }
 
 .tags-container {
@@ -124,22 +125,24 @@ document.addEventListener('DOMContentLoaded', function() {
 .tag-btn {
   padding: 0.5rem 1rem;
   background: var(--tag-bg);
-  border: none;
+  border: 1px solid var(--tag-border);
   border-radius: 20px;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--text-color);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
   transition: all 0.2s;
 }
 
 .tag-btn:hover {
-  background: var(--accent-color);
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
 }
 
 .tag-btn.active {
-  background: var(--accent-color);
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
   font-weight: 600;
 }
 
@@ -151,26 +154,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .category-post {
   padding: 1.5rem;
-  background: var(--card-bg);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.category-post:hover {
+  border-color: var(--accent-dark);
 }
 
 .post-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--accent-color);
+  color: var(--accent-light);
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 .post-title:hover {
-  text-decoration: underline;
+  color: var(--accent);
 }
 
 .post-date {
   display: block;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
   margin-top: 0.5rem;
 }
 
@@ -182,10 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .tag-badge {
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.625rem;
   background: var(--tag-bg);
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: var(--accent-color);
+  border: 1px solid var(--tag-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--accent-light);
 }
 </style>

@@ -530,6 +530,22 @@ body {
     border-top: 1px solid var(--border);
 }
 
+.source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--accent-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.source-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
 /* Divider */
 .divider {
     border: none;
