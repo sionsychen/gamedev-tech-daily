@@ -71,8 +71,13 @@
                 'footer.curated': '为游戏开发者精心策划'
             }
         };
-
-        const originalSetLanguage = window.switchLanguage;
+        
+        // Content language switcher - switches article content
+        function switchContentLanguage(lang) {
+            document.querySelectorAll('[data-lang-content]').forEach(el => {
+                el.style.display = el.dataset.langContent === lang ? 'block' : 'none';
+            });
+        }
         
         window.switchLanguage = function(lang) {
             localStorage.setItem('site-language', lang);
@@ -81,7 +86,7 @@
             // Update nav and footer
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.dataset.i18n;
-                if (navi18n[lang][key]) {
+                if (navi18n[lang] && navi18n[lang][key]) {
                     el.textContent = navi18n[lang][key];
                 }
             });
@@ -91,9 +96,12 @@
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
             
+            // Switch article content
+            switchContentLanguage(lang);
+            
             // Call page-specific handler if exists
-            if (originalSetLanguage) {
-                originalSetLanguage(lang);
+            if (window.onLanguageChange) {
+                window.onLanguageChange(lang);
             }
         };
 
