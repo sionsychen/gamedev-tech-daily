@@ -3,13 +3,17 @@ layout: default
 title: Home
 ---
 
-{% assign latest_post = site.posts.first %}
+{% assign latest_post_en = nil %}
+{% assign latest_post_zh = nil %}
 {% for post in site.posts %}
   {% if post.path contains '-en' or post.lang == 'en' %}
-    {% assign latest_post = post %}
-    {% break %}
+    {% assign latest_post_en = post %}
+  {% endif %}
+  {% if post.path contains '-zh' or post.lang == 'zh' %}
+    {% assign latest_post_zh = post %}
   {% endif %}
 {% endfor %}
+{% assign latest_post = latest_post_en %}
 
 <!-- Hero Section -->
 <section class="hero">
@@ -38,17 +42,31 @@ title: Home
   </div>
 </section>
 
-{% if latest_post %}
-<!-- Today's Headlines -->
-<section id="today" class="today-section">
+{% if latest_post_en or latest_post_zh %}
+<!-- Today's Headlines - English -->
+<section id="today-en" class="today-section" data-lang-content="en">
   <div class="container">
     <div class="section-header">
       <h2 class="section-title" data-i18n="today.title">Today's Headlines</h2>
-      <span class="section-date">{{ latest_post.date | date: "%A, %B %d, %Y" }}</span>
+      <span class="section-date">{{ latest_post_en.date | date: "%A, %B %d, %Y" }}</span>
     </div>
 
     <div class="articles-container">
-      {{ latest_post.content }}
+      {{ latest_post_en.content }}
+    </div>
+  </div>
+</section>
+
+<!-- Today's Headlines - Chinese -->
+<section id="today-zh" class="today-section" data-lang-content="zh" style="display: none;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title" data-i18n="today.title">今日头条</h2>
+      <span class="section-date">{{ latest_post_zh.date | date: "%Y年%m月%d日" }}</span>
+    </div>
+
+    <div class="articles-container">
+      {{ latest_post_zh.content }}
     </div>
   </div>
 </section>
@@ -63,6 +81,28 @@ title: Home
   </div>
 </section>
 {% endif %}
+
+<!-- Language Content Switcher -->
+<script>
+(function() {
+  function switchContentLanguage(lang) {
+    document.querySelectorAll('[data-lang-content]').forEach(el => {
+      el.style.display = el.dataset.langContent === lang ? 'block' : 'none';
+    });
+  }
+  
+  // Listen for language switch events
+  const originalSwitchLang = window.switchLanguage;
+  window.switchLanguage = function(lang) {
+    if (originalSwitchLang) originalSwitchLang(lang);
+    switchContentLanguage(lang);
+  };
+  
+  // Initialize on load
+  const savedLang = localStorage.getItem('site-language') || 'en';
+  switchContentLanguage(savedLang);
+})();
+</script>
 
 <script>
 // Language Switcher
