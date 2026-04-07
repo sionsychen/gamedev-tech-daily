@@ -105,12 +105,16 @@
             }
         };
 
-        // Initialize on page load
+        // Initialize on page load - wait for DOM and page-specific handlers
         const savedLang = localStorage.getItem('site-language') || 'en';
+        function initLanguage() {
+            // Small delay to ensure page-specific onLanguageChange is registered
+            setTimeout(() => window.switchLanguage(savedLang), 0);
+        }
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => window.switchLanguage(savedLang));
+            document.addEventListener('DOMContentLoaded', initLanguage);
         } else {
-            window.switchLanguage(savedLang);
+            initLanguage();
         }
     })();
     </script>
