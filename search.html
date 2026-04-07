@@ -3,76 +3,45 @@ layout: default
 title: Search
 ---
 
-<section class="today-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title" data-i18n="search.title">Search</h2>
-        </div>
-        
-        <div class="search-filters" style="margin-bottom: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
-                <input type="checkbox" id="filter-title" checked> 
-                <span data-i18n="search.filterTitle">Title</span>
-            </label>
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
-                <input type="checkbox" id="filter-excerpt" checked> 
-                <span data-i18n="search.filterExcerpt">Excerpt</span>
-            </label>
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary);">
-                <input type="checkbox" id="filter-tags" checked> 
-                <span data-i18n="search.filterTags">Tags</span>
-            </label>
-        </div>
-        
-        <div class="search-box" style="position: relative;">
-            <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" placeholder="Search articles, tags, or keywords..." autocomplete="off" 
-                   style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; background: var(--bg-secondary); color: var(--text-primary);">
-        </div>
-        
-        <div id="search-results" style="margin-top: 1.5rem;">
-            <p style="color: var(--text-muted);" data-i18n="search.hint">Enter keywords to start searching...</p>
-        </div>
+<section class="search-page">
+  <div class="container">
+    <h2 class="page-title" data-i18n="search.title">🔍 Search</h2>
+    
+    <div class="search-box">
+      <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" placeholder="Search articles..." class="search-input" autocomplete="off">
     </div>
+    
+    <div id="search-results" class="search-results">
+      <p class="search-hint" data-i18n="search.hint">Enter keywords to search articles...</p>
+    </div>
+    
+    <div class="back-link-container">
+      <a href="{{ '/' | relative_url }}" class="back-link" data-i18n="common.backHome">← Back to Home</a>
+    </div>
+  </div>
 </section>
 
 <script>
-// Extract tags from article content
-function extractTags(content) {
-    const tagRegex = /#([a-zA-Z]+)/g;
-    const tags = [];
-    let match;
-    while ((match = tagRegex.exec(content)) !== null) {
-        tags.push(match[1]);
-    }
-    return tags;
-}
-
-// Extract excerpt (first paragraph)
-function extractExcerpt(content) {
-    // Remove HTML tags
-    const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    // Get first 200 chars
-    return text.substring(0, 200) + (text.length > 200 ? '...' : '');
-}
-
 // Page-specific i18n for search page
 (function() {
   const pageI18n = {
     en: {
-      'search.title': 'Search',
-      'search.filterTitle': 'Title',
-      'search.filterExcerpt': 'Excerpt',
-      'search.filterTags': 'Tags',
-      'search.placeholder': 'Search articles, tags, or keywords...',
-      'search.hint': 'Enter keywords to start searching...'
+      'search.title': '🔍 Search',
+      'search.placeholder': 'Search articles...',
+      'search.hint': 'Enter keywords to search articles...',
+      'search.noResults': 'No matching articles found.',
+      'search.found': 'Found',
+      'search.results': 'results',
+      'common.backHome': '← Back to Home'
     },
     zh: {
-      'search.title': '搜索',
-      'search.filterTitle': '标题',
-      'search.filterExcerpt': '摘要',
-      'search.filterTags': '标签',
-      'search.placeholder': '搜索文章、标签或关键词...',
-      'search.hint': '输入关键词开始搜索...'
+      'search.title': '🔍 搜索',
+      'search.placeholder': '搜索文章...',
+      'search.hint': '输入关键词搜索文章...',
+      'search.noResults': '未找到匹配的文章。',
+      'search.found': '找到',
+      'search.results': '个结果',
+      'common.backHome': '← 返回首页'
     }
   };
 
@@ -93,169 +62,188 @@ function extractExcerpt(content) {
   };
 })();
 
-// Search index data
+// Build search data from posts (include both EN and ZH)
 const searchData = [
-    {% for post in site.posts %}
-    {
-        title: "{{ post.title | escape }}",
-        url: "{{ post.url | relative_url }}",
-        date: "{{ post.date | date: '%Y-%m-%d' }}",
-        lang: "{% if post.path contains '-en' or post.lang == 'en' %}en{% else %}zh{% endif %}",
-        categories: [{% for cat in post.categories %}"{{ cat }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
-        content: "{{ post.content | strip_html | escape | truncate: 500 }}",
-        rawContent: `{{ post.content | escape }}`
-    }{% unless forloop.last %},{% endunless %}
-    {% endfor %}
-].map(item => ({
-    ...item,
-    tags: extractTags(item.rawContent),
-    excerpt: extractExcerpt(item.rawContent)
-}));
+  {% for post in site.posts %}
+  {% for article in post.articles %}
+  {
+    title: {{ article.title | jsonify }},
+    title_zh: {{ article.title_zh | jsonify }},
+    url: {{ post.url | relative_url | jsonify }},
+    date: {{ post.date | jsonify }},
+    category: {{ article.category | jsonify }},
+    summary: {{ article.summary | jsonify }},
+    summary_zh: {{ article.summary_zh | jsonify }}
+  }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+  {% endfor %}
+];
 
 const searchInput = document.getElementById('search-input');
 const searchResults = document.getElementById('search-results');
 
-function getActiveFilters() {
-    return {
-        title: document.querySelector('input#filter-title[type="checkbox"]')?.checked ?? true,
-        excerpt: document.querySelector('input#filter-excerpt[type="checkbox"]')?.checked ?? true,
-        tags: document.querySelector('input#filter-tags[type="checkbox"]')?.checked ?? true
-    };
+function getI18nText(key) {
+  const lang = localStorage.getItem('site-language') || 'en';
+  const texts = {
+    en: {
+      'search.hint': 'Enter keywords to search articles...',
+      'search.noResults': 'No matching articles found.',
+      'search.found': 'Found',
+      'search.results': 'results'
+    },
+    zh: {
+      'search.hint': '输入关键词搜索文章...',
+      'search.noResults': '未找到匹配的文章。',
+      'search.found': '找到',
+      'search.results': '个结果'
+    }
+  };
+  return texts[lang][key] || texts['en'][key];
+}
+
+function getDisplayTitle(item) {
+  const lang = localStorage.getItem('site-language') || 'en';
+  return lang === 'zh' && item.title_zh ? item.title_zh : item.title;
 }
 
 searchInput.addEventListener('input', function() {
-    const query = this.value.toLowerCase().trim();
-    const filters = getActiveFilters();
-    const currentLang = localStorage.getItem('site-language') || 'en';
-    
-    if (query.length < 2) {
-        const hintText = currentLang === 'zh' ? '输入关键词开始搜索...' : 'Enter keywords to start searching...';
-        searchResults.innerHTML = `<p style="color: #999;">${hintText}</p>`;
-        return;
-    }
-    
-    const results = searchData.map(item => {
-        let score = 0;
-        const matches = {
-            title: false,
-            excerpt: false,
-            tags: []
-        };
-        
-        // Title search (highest priority)
-        if (filters.title && item.title.toLowerCase().includes(query)) {
-            score += 10;
-            matches.title = true;
-        }
-        
-        // Tag search (high priority)
-        if (filters.tags) {
-            item.tags.forEach(tag => {
-                if (tag.toLowerCase().includes(query)) {
-                    score += 5;
-                    matches.tags.push(tag);
-                }
-            });
-        }
-        
-        // Excerpt search (normal priority)
-        if (filters.excerpt && item.excerpt.toLowerCase().includes(query)) {
-            score += 3;
-            matches.excerpt = true;
-        }
-        
-        return { ...item, score, matches };
-    }).filter(item => item.score > 0).sort((a, b) => b.score - a.score);
-    
-    displayResults(results, query);
+  const query = this.value.toLowerCase().trim();
+  
+  if (query.length === 0) {
+    searchResults.innerHTML = `<p class="search-hint">${getI18nText('search.hint')}</p>`;
+    return;
+  }
+  
+  const results = searchData.filter(item => {
+    const titleMatch = item.title.toLowerCase().includes(query) || 
+                      (item.title_zh && item.title_zh.toLowerCase().includes(query));
+    const summaryMatch = (item.summary && item.summary.toLowerCase().includes(query)) ||
+                        (item.summary_zh && item.summary_zh.toLowerCase().includes(query));
+    const categoryMatch = item.category && item.category.toLowerCase().includes(query);
+    return titleMatch || summaryMatch || categoryMatch;
+  });
+  
+  if (results.length === 0) {
+    searchResults.innerHTML = `<p class="search-hint">${getI18nText('search.noResults')}</p>`;
+    return;
+  }
+  
+  const foundText = getI18nText('search.found');
+  const resultsText = getI18nText('search.results');
+  
+  let html = `<div class="results-count">${foundText} ${results.length} ${resultsText}</div>
+    <div class="results-list">`;
+  
+  results.forEach(item => {
+    html += `
+      <a href="${item.url}" class="result-item">
+        <span class="result-date">${item.date.substring(0, 10)}</span>
+        <span class="result-title">${getDisplayTitle(item)}</span>
+      </a>
+    `;
+  });
+  
+  html += '</div>';
+  searchResults.innerHTML = html;
 });
-
-// Update search when filters change
-document.querySelectorAll('.search-filters input').forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-        if (searchInput.value.trim().length >= 2) {
-            searchInput.dispatchEvent(new Event('input'));
-        }
-    });
-});
-
-function displayResults(results, query) {
-    const currentLang = localStorage.getItem('site-language') || 'en';
-    
-    if (results.length === 0) {
-        const noResultsText = currentLang === 'zh' ? '未找到相关文章' : 'No articles found';
-        searchResults.innerHTML = `<p style="color: var(--text-muted);">${noResultsText}</p>`;
-        return;
-    }
-    
-    const foundText = currentLang === 'zh' ? '找到' : 'Found';
-    const articlesText = currentLang === 'zh' ? '篇文章' : 'article(s)';
-    const tagMatchText = currentLang === 'zh' ? '• 标签匹配已启用' : '• Tag matching enabled';
-    
-    let html = `<p style="margin-bottom: 1rem; color: var(--text-secondary);">
-        ${foundText} <strong>${results.length}</strong> ${articlesText}
-        ${results.some(r => r.matches.tags.length > 0) ? ` ${tagMatchText}` : ''}
-    </p>`;
-    
-    results.forEach(item => {
-        // Build match indicators
-        const indicators = [];
-        const titleLabel = currentLang === 'zh' ? '📌 标题' : '📌 Title';
-        const tagLabel = currentLang === 'zh' ? `🏷️ ${item.matches.tags.length} 个标签` : `🏷️ ${item.matches.tags.length} tag(s)`;
-        const excerptLabel = currentLang === 'zh' ? '📝 摘要' : '📝 Excerpt';
-        if (item.matches.title) indicators.push(`<span style="color: var(--accent); font-size: 0.8rem;">${titleLabel}</span>`);
-        if (item.matches.tags.length > 0) indicators.push(`<span style="color: var(--accent-light); font-size: 0.8rem;">${tagLabel}</span>`);
-        if (item.matches.excerpt) indicators.push(`<span style="color: var(--text-muted); font-size: 0.8rem;">${excerptLabel}</span>`);
-        
-        // Highlight tags
-        const tagDisplay = item.tags.slice(0, 5).map(tag => {
-            const isMatched = item.matches.tags.includes(tag);
-            return `<span style="display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 12px; font-size: 0.75rem; ${isMatched ? 'background: var(--accent); color: white;' : 'background: var(--bg-tertiary); color: var(--text-muted);'}">#${tag}</span>`;
-        }).join('');
-        
-        // Get excerpt with highlighted query
-        let excerptText = item.excerpt;
-        if (item.matches.excerpt) {
-            const idx = item.excerpt.toLowerCase().indexOf(query);
-            if (idx >= 0) {
-                const start = Math.max(0, idx - 50);
-                const end = Math.min(item.excerpt.length, idx + query.length + 100);
-                excerptText = (start > 0 ? '...' : '') + 
-                             item.excerpt.substring(start, end) + 
-                             (end < item.excerpt.length ? '...' : '');
-            }
-        }
-        
-        html += `
-            <div class="article-card" style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <a href="${item.url}" style="font-weight: 600; font-size: 1.1rem; color: var(--text-primary); text-decoration: none;">
-                        ${highlight(item.title, query)}
-                    </a>
-                    <span style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">${item.date}</span>
-                </div>
-                
-                <div style="margin-bottom: 0.5rem;">${indicators.join(' <span style="color: var(--border);">|</span> ')}</div>
-                
-                <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.5rem;">
-                    ${item.matches.excerpt ? highlight(excerptText, query) : excerptText.substring(0, 150) + '...'}
-                </div>
-                
-                <div style="margin-top: 0.5rem;">${tagDisplay}</div>
-            </div>
-        `;
-    });
-    
-    searchResults.innerHTML = html;
-}
-
-function highlight(text, query) {
-    if (!query) return text;
-    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-    return text.replace(regex, '<mark style="background: rgba(245, 158, 11, 0.3); padding: 1px 2px; border-radius: 2px; color: var(--text-primary);">$1</mark>');
-}
-
-function escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 </script>
+
+<style>
+.search-page {
+  padding: 3rem 0;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-hint {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.results-count {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.result-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+}
+
+.result-date {
+  font-size: 0.875rem;
+  color: var(--accent-light);
+  font-weight: 500;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.result-title {
+  flex: 1;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.back-link-container {
+  margin-top: 2rem;
+}
+
+.back-link {
+  color: var(--accent-light);
+  font-weight: 500;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+</style>

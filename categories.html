@@ -1,8 +1,201 @@
 ---
 layout: default
 title: Categories
-permalink: /categories-old/
 ---
 
-<!-- Redirects to categories.md page -->
-<script>window.location.href = "{{ '/categories' | relative_url }}";</script>
+<section class="categories-page">
+  <div class="container">
+    <h2 class="page-title" data-i18n="categories.title">🏷️ Categories</h2>
+    
+    <div class="category-list">
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">⚙️</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.unity">Unity</span>
+          <span class="category-desc" data-i18n="categories.unityDesc">Engine features, ECS, rendering</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">🎮</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.unreal">Unreal Engine</span>
+          <span class="category-desc" data-i18n="categories.unrealDesc">UE5 features, Nanite, Lumen</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">🎨</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.graphics">Graphics</span>
+          <span class="category-desc" data-i18n="categories.graphicsDesc">Rendering, shaders, VFX</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">🤖</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.ai">AI</span>
+          <span class="category-desc" data-i18n="categories.aiDesc">Game AI, ML, procedural content</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">🛠️</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.tools">Tools</span>
+          <span class="category-desc" data-i18n="categories.toolsDesc">Dev tools, pipelines, workflows</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">⚡</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.performance">Performance</span>
+          <span class="category-desc" data-i18n="categories.performanceDesc">Optimization, profiling, debugging</span>
+        </div>
+      </a>
+      
+      <a href="{{ '/' | relative_url }}" class="category-item">
+        <span class="category-emoji">🏗️</span>
+        <div class="category-info">
+          <span class="category-name" data-i18n="categories.architecture">Architecture</span>
+          <span class="category-desc" data-i18n="categories.architectureDesc">Design patterns, ECS, systems</span>
+        </div>
+      </a>
+    </div>
+    
+    <div class="back-link-container">
+      <a href="{{ '/' | relative_url }}" class="back-link" data-i18n="common.backHome">← Back to Home</a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Page-specific i18n for categories page
+(function() {
+  const pageI18n = {
+    en: {
+      'categories.title': '🏷️ Categories',
+      'categories.unity': 'Unity',
+      'categories.unityDesc': 'Engine features, ECS, rendering',
+      'categories.unreal': 'Unreal Engine',
+      'categories.unrealDesc': 'UE5 features, Nanite, Lumen',
+      'categories.graphics': 'Graphics',
+      'categories.graphicsDesc': 'Rendering, shaders, VFX',
+      'categories.ai': 'AI',
+      'categories.aiDesc': 'Game AI, ML, procedural content',
+      'categories.tools': 'Tools',
+      'categories.toolsDesc': 'Dev tools, pipelines, workflows',
+      'categories.performance': 'Performance',
+      'categories.performanceDesc': 'Optimization, profiling, debugging',
+      'categories.architecture': 'Architecture',
+      'categories.architectureDesc': 'Design patterns, ECS, systems',
+      'common.backHome': '← Back to Home'
+    },
+    zh: {
+      'categories.title': '🏷️ 文章分类',
+      'categories.unity': 'Unity',
+      'categories.unityDesc': '引擎功能、ECS、渲染',
+      'categories.unreal': '虚幻引擎',
+      'categories.unrealDesc': 'UE5 功能、Nanite、Lumen',
+      'categories.graphics': '图形渲染',
+      'categories.graphicsDesc': '渲染、着色器、特效',
+      'categories.ai': '人工智能',
+      'categories.aiDesc': '游戏 AI、机器学习、程序化内容',
+      'categories.tools': '开发工具',
+      'categories.toolsDesc': '开发工具、管线、工作流',
+      'categories.performance': '性能优化',
+      'categories.performanceDesc': '优化、性能分析、调试',
+      'categories.architecture': '架构设计',
+      'categories.architectureDesc': '设计模式、ECS、系统架构',
+      'common.backHome': '← 返回首页'
+    }
+  };
+
+  // Register page-specific language handler
+  window.onLanguageChange = function(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (pageI18n[lang] && pageI18n[lang][key]) {
+        el.textContent = pageI18n[lang][key];
+      }
+    });
+  };
+})();
+</script>
+
+<style>
+.categories-page {
+  padding: 3rem 0;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.category-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+.category-emoji {
+  font-size: 2rem;
+  width: 48px;
+  text-align: center;
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.category-desc {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.back-link-container {
+  margin-top: 2rem;
+}
+
+.back-link {
+  color: var(--accent-light);
+  font-weight: 500;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+</style>
