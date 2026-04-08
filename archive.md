@@ -12,7 +12,7 @@ title: Archive
       {% if post.path contains '-en' or post.lang == 'en' %}
       <a href="{{ post.url | relative_url }}" class="archive-item">
         <span class="archive-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-        <span class="archive-title">{{ post.title }}</span>
+        <span class="archive-title" data-title-en="{{ post.title }}" data-title-zh="{{ post.title_zh | default: post.title }}">{{ post.title }}</span>
         <svg class="archive-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;flex-shrink:0;">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -22,7 +22,7 @@ title: Archive
   </div>
   
   <div class="back-link-container">
-    <a href="{{ '/' | relative_url }}" class="back-link" data-i18n="archive.backHome">← Back to Home</a>
+    <a href="{{ '/' | relative_url }}" class="back-link" data-i18n="common.backHome">← Back to Home</a>
   </div>
 </section>
 
@@ -32,23 +32,46 @@ title: Archive
   const pageI18n = {
     en: {
       'archive.title': '📚 Archive',
-      'archive.backHome': '← Back to Home'
+      'common.backHome': '← Back to Home'
     },
     zh: {
       'archive.title': '📚 文章归档',
-      'archive.backHome': '← 返回首页'
+      'common.backHome': '← 返回首页'
     }
   };
 
-  // Register page-specific language handler
-  window.onLanguageChange = function(lang) {
+  function updateArchivePage(lang) {
+    // Update static i18n elements
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
       if (pageI18n[lang] && pageI18n[lang][key]) {
         el.textContent = pageI18n[lang][key];
       }
     });
-  };
+    
+    // Update article titles
+    document.querySelectorAll('[data-title-en][data-title-zh]').forEach(el => {
+      if (lang === 'zh' && el.dataset.titleZh) {
+        el.textContent = el.dataset.titleZh;
+      } else {
+        el.textContent = el.dataset.titleEn;
+      }
+    });
+  }
+
+  // Register handler immediately for default.html to find it
+  window.onLanguageChange = updateArchivePage;
+  
+  // Also run on DOM ready to handle cached language
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedLang = localStorage.getItem('site-language') || 'en';
+      updateArchivePage(savedLang);
+    });
+  } else {
+    const savedLang = localStorage.getItem('site-language') || 'en';
+    updateArchivePage(savedLang);
+  }
 })();
 </script>
 
