@@ -4,7 +4,7 @@ layout: default
 
 <article class="article-page">
     <header class="article-header">
-        <h1 class="article-title">{{ page.title }}</h1>
+        <h1 class="article-title" data-title-en="{{ page.title }}" data-title-zh="{{ page.title_zh | default: page.title }}">{{ page.title }}</h1>
         <p class="article-date">{{ page.date | date: "%B %d, %Y" }}</p>
         {% if page.categories %}
         <div class="article-categories">
@@ -19,7 +19,228 @@ layout: default
         {{ content }}
     </div>
 
+    <!-- Articles from frontmatter -->
+    {% if page.articles %}
+    <section class="articles-section">
+        <h2 class="section-title" data-i18n="today.title">Today's Headlines</h2>
+        <div class="articles-container">
+            {% assign articles = page.articles %}
+            
+            {% for article in articles %}
+            {% assign cat = article.category %}
+            {% if cat == 'unity' %}{% assign cat_name = 'Unity' %}{% assign cat_name_zh = 'Unity' %}
+            {% elsif cat == 'unreal' %}{% assign cat_name = 'Unreal Engine' %}{% assign cat_name_zh = '虚幻引擎' %}
+            {% elsif cat == 'graphics' %}{% assign cat_name = 'Graphics' %}{% assign cat_name_zh = '图形渲染' %}
+            {% elsif cat == 'ai' %}{% assign cat_name = 'AI' %}{% assign cat_name_zh = '人工智能' %}
+            {% elsif cat == 'ai-tools' %}{% assign cat_name = 'AI Tools' %}{% assign cat_name_zh = 'AI 工具' %}
+            {% elsif cat == 'ai-art' %}{% assign cat_name = 'AI Art' %}{% assign cat_name_zh = 'AI 美术' %}
+            {% elsif cat == 'ai-code' %}{% assign cat_name = 'AI Code' %}{% assign cat_name_zh = 'AI 编程' %}
+            {% elsif cat == 'tools' %}{% assign cat_name = 'Tools' %}{% assign cat_name_zh = '开发工具' %}
+            {% elsif cat == 'performance' %}{% assign cat_name = 'Performance' %}{% assign cat_name_zh = '性能优化' %}
+            {% elsif cat == 'architecture' %}{% assign cat_name = 'Architecture' %}{% assign cat_name_zh = '架构设计' %}
+            {% else %}{% assign cat_name = cat | capitalize %}{% assign cat_name_zh = cat_name %}
+            {% endif %}
+            <article class="article-card">
+                <div class="article-header">
+                    <span class="category-badge category-{{ cat }}" data-cat-en="{{ cat_name }}" data-cat-zh="{{ cat_name_zh }}">
+                        {{ cat_name }}
+                    </span>
+                </div>
+                
+                <h3 class="article-title" data-title-en="{{ article.title }}" data-title-zh="{{ article.title_zh | default: article.title }}">{{ article.title }}</h3>
+                <p class="article-summary" data-summary-en="{{ article.summary }}" data-summary-zh="{{ article.summary_zh | default: article.summary }}">{{ article.summary }}</p>
+                
+                <div class="article-footer">
+                    <a href="{{ article.sourceUrl }}" target="_blank" class="read-more" data-i18n="article.readMore">
+                        Read article
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <footer class="article-footer">
         <a href="{{ '/' | relative_url }}" class="back-link">← Back to Home</a>
     </footer>
 </article>
+
+<script>
+// Language Switcher for Post Page
+(function() {
+    const catNames = {
+        en: { 'unity': 'Unity', 'unreal': 'Unreal Engine', 'graphics': 'Graphics', 'ai': 'AI', 'ai-tools': 'AI Tools', 'ai-art': 'AI Art', 'ai-code': 'AI Code', 'tools': 'Tools', 'performance': 'Performance', 'architecture': 'Architecture' },
+        zh: { 'unity': 'Unity', 'unreal': '虚幻引擎', 'graphics': '图形渲染', 'ai': '人工智能', 'ai-tools': 'AI 工具', 'ai-art': 'AI 美术', 'ai-code': 'AI 编程', 'tools': '开发工具', 'performance': '性能优化', 'architecture': '架构设计' }
+    };
+
+    function updatePostPageLanguage(lang) {
+        // Update article titles
+        document.querySelectorAll('.article-title').forEach(el => {
+            const title = lang === 'zh' ? el.dataset.titleZh : el.dataset.titleEn;
+            if (title) {
+                el.textContent = title;
+            }
+        });
+        
+        // Update article summaries
+        document.querySelectorAll('.article-summary').forEach(el => {
+            const summary = lang === 'zh' ? el.dataset.summaryZh : el.dataset.summaryEn;
+            if (summary) {
+                el.textContent = summary;
+            }
+        });
+        
+        // Update category badges
+        document.querySelectorAll('.category-badge').forEach(el => {
+            const cat = el.className.match(/category-(\w+)/)?.[1];
+            if (cat && catNames[lang] && catNames[lang][cat]) {
+                el.textContent = catNames[lang][cat];
+            }
+        });
+    }
+
+    window.onLanguageChange = updatePostPageLanguage;
+    
+    // Initialize on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('site-language') || 'en';
+            updatePostPageLanguage(savedLang);
+        });
+    } else {
+        const savedLang = localStorage.getItem('site-language') || 'en';
+        updatePostPageLanguage(savedLang);
+    }
+})();
+</script>
+
+<style>
+.article-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.article-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.article-title {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.article-date {
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+.article-content {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.articles-section {
+    margin: 3rem 0;
+}
+
+.articles-section .section-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.articles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.article-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.article-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.article-card .article-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0;
+    border-bottom: none;
+    text-align: left;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.article-card .article-title {
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+}
+
+.article-summary {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.article-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.read-more:hover {
+    color: var(--accent-light);
+}
+
+.read-more svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.article-footer .back-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--accent-light);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.article-footer .back-link:hover {
+    color: var(--accent);
+}
+</style>
